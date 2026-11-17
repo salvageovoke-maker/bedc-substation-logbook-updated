@@ -1,0 +1,2111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#eef2f6">
+<title>BEDC Injection Substation Logbook</title>
+<style>
+:root{--bg:#eef2f6;--panel:#172b3a;--panel2:#20394b;--ink:#17212b;--muted:#637383;--line:#d8e0e8;--white:#fff;--red:#ef5350;--green:#37c987;--amber:#f0b64d;--blue:#5aa9e6}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.45 Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}
+header{padding:22px max(18px,calc((100% - 1180px)/2));background:#fff;border-bottom:1px solid var(--line)}
+.eyebrow{font-size:11px;letter-spacing:.13em;font-weight:800;color:#587082;text-transform:uppercase}
+h1{font-size:clamp(22px,4vw,30px);margin:5px 0 3px}header p{margin:0;color:var(--muted)}
+main{max-width:1180px;margin:22px auto;padding:0 16px 44px}
+.topbar{display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap;margin-bottom:16px}
+.session{color:#536474;font-size:13px}.actions{display:flex;gap:8px;flex-wrap:wrap}
+button{border:0;border-radius:9px;padding:10px 14px;font-weight:750;font-size:13px;cursor:pointer;transition:.15s}
+button:disabled{opacity:.4;cursor:not-allowed}.btn-light{background:#fff;color:#233746;border:1px solid var(--line)}.btn-primary{background:#246b8e;color:white}.btn-danger{background:#b93838;color:#fff}.btn-warn{background:#f7e9c8;color:#72520c}.btn-dark{background:#29485d;color:#fff}
+.grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
+.card{background:var(--panel);color:#f5f8fb;border-radius:15px;padding:17px;box-shadow:0 5px 18px #19324712}
+.card:nth-child(1){--panel:#173b5e;background:#173b5e}
+.card:nth-child(2){--panel:#174d49;background:#174d49}
+ .card:nth-child(3){--panel:#44345f;background:#44345f}
+/* Match log-screen feeder cards to the five dashboard card colour themes. */
+#feederCards > .card{background:linear-gradient(135deg,#183d61,#23658b);border:0;color:#f5f8fb}
+#feederCards > .card:nth-child(2){background:linear-gradient(135deg,#14534f,#218c7b)}
+#feederCards > .card:nth-child(3){background:linear-gradient(135deg,#40365f,#69538d)}
+#feederCards > .card:nth-child(4){background:linear-gradient(135deg,#714326,#b66b35)}
+#feederCards > .card:nth-child(5){background:linear-gradient(135deg,#34465f,#526f91)}
+/* Match the countdown donut centre to each card background. */
+#feederCards > .card:nth-child(4){--panel:#714326}
+#feederCards > .card:nth-child(5){--panel:#34465f}
+#feederCards > .card .sub,#feederCards > .card .timer-info p{color:#d5e1e8}
+#feederCards > .card .timer-info strong{color:#fff}
+.card h2{font-size:16px;margin:0 0 4px}.sub{font-size:12px;color:#b7c7d3}
+.status{display:flex;align-items:center;gap:8px;margin:16px 0 12px;font-size:13px;color:#d7e2e9}
+.lamp{width:12px;height:12px;border-radius:50%;background:var(--green);box-shadow:0 0 0 4px #37c98720}.lamp.on{background:var(--red);box-shadow:0 0 0 4px #ef535020}
+.control{display:flex;gap:8px}.control button{flex:1}
+.btn-on{background:#e74b4b;color:white}.btn-off{background:#d9f4e8;color:#12633f}
+.metrics{display:flex;justify-content:space-between;gap:8px;margin-top:15px;padding-top:12px;border-top:1px solid #ffffff20}
+.metric small{display:block;color:#adc0ce;font-size:11px}.metric strong{font-size:15px}
+.timer-card{display:flex;align-items:center;gap:16px;margin-top:14px}
+.donut{width:104px;height:104px;flex:0 0 104px;border-radius:50%;display:grid;place-items:center;background:conic-gradient(var(--green) var(--progress,100%),#ffffff20 0);position:relative}
+.donut:before{content:"";position:absolute;inset:9px;background:var(--panel);border-radius:50%}
+.donut div{z-index:1;text-align:center}.donut strong{display:block;font-size:18px}.donut small{font-size:10px;color:#b7c7d3}
+.timer-info{min-width:0}.timer-info strong{font-size:13px}.timer-info p{font-size:12px;color:#b7c7d3;margin:5px 0 0}
+.section{margin-top:20px;background:#fff;border:1px solid var(--line);border-radius:15px;padding:18px}
+.section-head{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:13px}
+.section h2{font-size:18px;margin:0}.muted{color:var(--muted);font-size:12px}
+.report-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.report{border:1px solid var(--line);border-radius:11px;padding:12px;background:#f8fafc}
+.report h3{font-size:13px;margin:0 0 9px}.report-row{display:flex;justify-content:space-between;font-size:12px;margin:5px 0;color:#566777}.report-row b{color:#182b3b;font-variant-numeric:tabular-nums}
+.report-total{margin-top:9px;padding-top:8px;border-top:1px solid var(--line);font-size:12px;display:flex;justify-content:space-between;font-weight:800}
+.log-tools{display:flex;gap:8px;flex-wrap:wrap}.log-list{display:flex;flex-direction:column;gap:7px}
+.log-item{display:grid;grid-template-columns:155px 1fr auto;gap:10px;align-items:center;padding:10px 12px;border:1px solid var(--line);border-radius:10px;background:#fbfcfd}
+.log-time{font-size:12px;color:#5c6c79;font-variant-numeric:tabular-nums}.log-message{font-weight:750;font-size:13px}.tag{display:inline-block;font-size:10px;padding:3px 7px;border-radius:20px;margin-left:6px;background:#e9eef3;color:#536474}
+.tag.on{background:#fde7e7;color:#a52c2c}.tag.off{background:#e1f5eb;color:#176541}
+.log-actions{display:flex;gap:5px}.log-actions button{padding:6px 9px;font-size:11px}
+.empty{padding:25px;text-align:center;color:#7a8995;font-size:13px}
+.modal-backdrop{display:none;position:fixed;inset:0;background:#0c1a26a8;z-index:5;align-items:center;justify-content:center;padding:16px}.modal-backdrop.show{display:flex}
+.modal{width:min(440px,100%);background:white;border-radius:15px;padding:20px;box-shadow:0 20px 60px #0003}.modal h3{margin:0 0 14px}
+.field{display:grid;gap:5px;margin:11px 0}.field label{font-size:12px;font-weight:750;color:#425464}.field input,.field select{width:100%;padding:11px;border:1px solid #cbd5df;border-radius:8px;font:inherit;background:white;color:#17212b}
+.modal-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:16px}
+.note{font-size:11px;color:#6d7d89;margin-top:12px}
+
+.backup-card{border:1px solid var(--line);border-radius:12px;padding:16px;margin:14px 0;background:#f8fafc}
+.backup-card h3{font-size:15px;margin:0 0 6px;color:#1b3447}.backup-card p{font-size:13px;color:#5d6e7c;margin:0 0 13px;max-width:760px}
+.backup-file-label{display:inline-block;background:#29485d;color:#fff;padding:10px 14px;border-radius:9px;font-weight:750;font-size:13px;cursor:pointer;margin:2px 0 10px}
+#restoreBackupFile{display:block;max-width:100%;font-size:13px;margin:0 0 9px}
+.backup-warning{border-left:4px solid #d79b2e;background:#fff7e6;padding:12px 14px;border-radius:7px;color:#70551d;font-size:13px}
+@media(max-width:850px){.grid{grid-template-columns:1fr 1fr}.report-grid{grid-template-columns:1fr}}
+@media(max-width:560px){main{padding:0 11px 30px}.grid{grid-template-columns:1fr}.card{padding:15px}.section{padding:14px}.log-item{grid-template-columns:1fr auto;gap:5px}.log-time{grid-column:1/-1}.log-message{grid-column:1}.log-actions{grid-column:2;grid-row:2}.timer-card{gap:13px}}
+
+/* Main menu */
+.menu-tabs{display:flex;flex-wrap:wrap;gap:6px;margin:18px 0 16px;padding:5px;background:#dfe7ee;border-radius:12px;width:100%;max-width:100%;box-sizing:border-box;overflow:visible}
+.menu-tab{flex:1 1 96px;min-width:0;max-width:100%;white-space:normal;overflow-wrap:anywhere;line-height:1.2;background:transparent;color:#334b5e;border:0;border-radius:8px;padding:10px 8px;font-size:clamp(11px,0.85vw,14px)}
+.menu-tab.active{background:#214f70;color:#fff;box-shadow:0 2px 7px #142b3d25}
+.page-panel[hidden]{display:none!important}
+.dashboard-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-bottom:14px}
+.dashboard-card{background:#fff;border:1px solid var(--line);border-radius:13px;padding:15px;min-width:0}
+.dashboard-card h3{font-size:13px;color:#526779;margin:0 0 9px}
+.dashboard-value{font-size:23px;font-weight:850;letter-spacing:-.03em;color:#19384e;font-variant-numeric:tabular-nums}
+.dashboard-meta{font-size:12px;color:#687987;margin-top:4px}
+.dashboard-status{display:flex;align-items:center;gap:8px;font-size:14px;font-weight:800}
+.dashboard-dot{width:10px;height:10px;border-radius:50%;background:#36bd82;box-shadow:0 0 0 4px #36bd8220;flex:0 0 auto}
+.dashboard-dot.on{background:#e84d4d;box-shadow:0 0 0 4px #e84d4d20}
+.dashboard-section{margin-top:14px}
+.dashboard-feeder-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.dashboard-feeder{background:#f7fafc;border:1px solid #dce5ec;border-radius:11px;padding:13px}
+.dashboard-feeder h3{font-size:13px;margin:0 0 8px;color:#203d52}
+.dashboard-stat{display:flex;justify-content:space-between;gap:8px;font-size:12px;margin:6px 0;color:#607181}
+.dashboard-stat strong{color:#1c3447;text-align:right;font-variant-numeric:tabular-nums}
+.dashboard-actions{display:flex;gap:8px;flex-wrap:wrap}
+.dashboard-note{font-size:11px;color:#738391;margin-top:9px}
+@media(max-width:850px){.dashboard-grid,.dashboard-feeder-grid{grid-template-columns:1fr 1fr}}
+@media(max-width:560px){.dashboard-grid,.dashboard-feeder-grid{grid-template-columns:1fr}.menu-tabs{overflow-x:auto;justify-content:flex-start}.menu-tab{flex:0 0 auto;min-width:100px;padding:10px 13px}}
+
+.load-toolbar{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin:0 0 12px}
+.load-toolbar h2{margin:0;font-size:18px}
+.load-scroll{height:min(68vh,680px);min-height:360px;overflow:auto;border:1px solid #aeb9c3;border-radius:8px;background:#fff;overscroll-behavior:contain}
+.load-table td{position:relative}
+.load-table input.estimated-reading{background:#fff3cd!important;color:#7a4b00;font-weight:700}
+.estimate-mark{position:absolute;top:1px;right:3px;color:#9a6700;font-size:11px;font-weight:900;pointer-events:none}
+.load-table{border-collapse:separate;border-spacing:0;table-layout:fixed;width:max-content;min-width:100%;font-size:13px}
+.load-table th,.load-table td{border-right:1px solid #8c969e;border-bottom:1px solid #8c969e;padding:0;text-align:center;width:88px;min-width:88px;box-sizing:border-box}
+.load-table th:first-child,.load-table td:first-child{width:76px;min-width:76px}
+.load-table thead th{position:sticky;top:0;z-index:3;height:50px;background:#24577c;color:#fff;font-weight:800;line-height:1.2;padding:6px 5px}
+.load-table thead th:first-child{left:0;z-index:5;width:90px;min-width:90px}
+.load-table tbody th{position:sticky;left:0;z-index:2;width:90px;min-width:90px;background:#fff;color:#263746;font-weight:500;text-align:left;padding:5px 8px}
+.load-table td{height:27px}
+.load-table td input{display:block;box-sizing:border-box;min-width:0;width:100%;height:27px;border:0;border-radius:0;text-align:center;padding:3px 5px;background:transparent;color:#17212b;font-family:inherit;font-size:13px;outline-offset:-2px}
+.load-table td input:focus{outline:2px solid #246b8e;background:#fff}
+.load-table .energy-in{background:#f2cccc}.load-table .fed{background:#d9ead5}.load-table .orho{background:#f8e5d1}
+.load-table .time-head{background:#24577c}
+.load-help{font-size:12px;color:#607181;margin:0 0 12px}
+.daily-report-tools{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:14px}
+.daily-report-box{display:none;margin-top:14px;padding:16px;border:1px solid #cbd6df;border-radius:11px;background:#f8fafc}
+.daily-report-box.show{display:block}
+.daily-report-head{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:10px}
+.daily-report-head h3{margin:0;font-size:15px}
+.daily-report-content{margin:0;white-space:pre-wrap;overflow-wrap:anywhere;font:13px/1.65 ui-monospace,SFMono-Regular,Consolas,monospace;color:#172b3a}
+@media(max-width:560px){.menu-tabs{width:100%;flex-wrap:nowrap;overflow-x:auto;overflow-y:hidden}.menu-tab{flex:0 0 auto;min-width:100px;white-space:nowrap;font-size:13px}.load-scroll{height:68vh;min-height:320px}.load-table{width:max-content;min-width:100%}.load-table th,.load-table td{width:88px;min-width:88px}.load-table th:first-child,.load-table td:first-child{width:76px;min-width:76px}.load-table td input{font-size:14px;padding:3px 2px}}
+
+/* Consumption sheet */
+.consumption-scroll{height:min(72vh,720px);min-height:380px;overflow:auto;border:1px solid #aeb9c3;border-radius:8px;background:#fff;overscroll-behavior:contain}
+.consumption-table{border-collapse:separate;border-spacing:0;table-layout:fixed;width:max-content;min-width:100%;font-size:13px}
+.consumption-table th,.consumption-table td{border-right:1px solid #8c969e;border-bottom:1px solid #8c969e;padding:0;text-align:center;height:33px;background:#fff}
+.consumption-table .letters th{border-right:1px solid #8c969e!important}
+.consumption-table .sheet-head th{overflow-wrap:anywhere}
+.consumption-table .consumption-feeder-name,.consumption-table .consumption-availability-label{display:block;white-space:normal}
+.consumption-table .consumption-availability-label{margin-top:2px}
+.consumption-table .sheet-head .data-cell{width:200px;min-width:200px;max-width:200px}
+.consumption-table .letters th:not(:first-child):not(:nth-child(2)){width:200px;min-width:200px}
+.consumption-table .letters th{position:sticky;top:0;z-index:5;height:28px;background:#edf3f8;color:#526577;font-weight:700}
+.consumption-table .letters th:first-child{left:0;z-index:8;width:48px;min-width:48px}
+.consumption-table .letters th:nth-child(2){position:sticky;left:48px;z-index:9;background:#edf3f8;width:185px;min-width:185px}
+.consumption-table .rownum{position:sticky;left:0;z-index:3;width:48px;min-width:48px;background:#edf3f8;color:#526577;font-weight:600}
+.consumption-table .sheet-head th{position:sticky;top:28px;z-index:4;background:#fff;color:#111;font-weight:800;line-height:1.2;padding:5px;white-space:normal}
+.consumption-table .sheet-head .rownum{left:0;z-index:7;background:#edf3f8}
+.consumption-table .col-a{position:sticky;left:48px;z-index:2;width:185px;min-width:185px;text-align:right;padding:5px 8px;background:#fff;font-weight:600}
+.consumption-table .sheet-head .col-a{z-index:6}
+.consumption-table .data-cell{width:200px;min-width:200px}
+.consumption-table input{width:100%;height:32px;border:0;border-radius:0;text-align:center;padding:4px 6px;background:transparent;color:#17212b;font:inherit;outline-offset:-2px}
+.consumption-table input:focus{outline:2px solid #246b8e;background:#fff}
+.consumption-table .calc-cell{font-weight:700;background:#f3f6f8;font-variant-numeric:tabular-nums}
+.consumption-table .energy-cell{background:#f8fafc}
+@media(max-width:560px){.consumption-scroll{height:70vh;min-height:340px}.consumption-table{width:max-content;min-width:100%}.consumption-table .col-a{width:185px;min-width:185px}.consumption-table .data-cell{width:200px;min-width:200px}}
+
+
+/* Dashboard visual refresh */
+:root{--dash-navy:#10283e;--dash-blue:#164b70;--dash-teal:#147b75;--dash-gold:#f2bd57}
+.dashboard-shell{position:relative;overflow:hidden;border:0!important;border-radius:22px!important;padding:0!important;background:#f4f8fb!important;box-shadow:0 16px 42px #12314b16}
+.dashboard-hero{position:relative;isolation:isolate;overflow:hidden;min-height:228px;padding:25px 26px 23px;color:#fff;background:linear-gradient(118deg,#10283e 0%,#164b70 54%,#147b75 100%)}
+.dashboard-hero:before{content:"";position:absolute;z-index:-1;width:390px;height:390px;border:1px solid #ffffff20;border-radius:50%;right:-85px;top:-205px;box-shadow:0 0 0 28px #ffffff08,0 0 0 58px #ffffff06,0 0 0 92px #ffffff04}
+.dashboard-hero:after{content:"";position:absolute;z-index:-1;width:280px;height:150px;right:4%;bottom:-82px;transform:rotate(-18deg);border:1px solid #f2bd5740;border-radius:50%;box-shadow:0 0 0 17px #f2bd5709,0 0 0 35px #f2bd5707}
+.dashboard-hero-top{display:flex;align-items:center;justify-content:space-between;gap:16px;position:relative;z-index:1}
+.dashboard-brand{display:flex;align-items:center;gap:12px}
+.dashboard-brand-mark{width:52px;height:52px;display:grid;place-items:center;border:1px solid #ffffff45;border-radius:15px;background:linear-gradient(145deg,#ffffff24,#ffffff0b);box-shadow:inset 0 1px #ffffff30}
+.dashboard-brand-mark svg{width:36px;height:36px}
+.dashboard-brand-text small{display:block;font-size:10px;font-weight:850;letter-spacing:.16em;color:#b7d7df;text-transform:uppercase}
+.dashboard-brand-text strong{display:block;font-size:15px;letter-spacing:.02em}
+.dashboard-live{display:flex;align-items:center;gap:7px;border:1px solid #ffffff36;border-radius:30px;padding:7px 11px;background:#ffffff12;color:#e9f8f4;font-size:11px;font-weight:800;white-space:nowrap}
+.dashboard-live i{width:7px;height:7px;border-radius:50%;background:#62e2ad;box-shadow:0 0 0 4px #62e2ad20}
+.dashboard-hero-copy{position:relative;z-index:1;margin-top:25px;max-width:650px}
+.dashboard-hero-copy .eyebrow{color:#f5cc78;font-size:10px}
+.dashboard-hero-copy h2{font-size:clamp(25px,4vw,36px);line-height:1.12;letter-spacing:-.035em;margin:5px 0 7px;color:#fff}
+.dashboard-hero-copy p{font-size:13px;color:#d3e4ed;margin:0;max-width:520px}
+.dashboard-hero-actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px;position:relative;z-index:1}
+.dashboard-hero-actions button{border:1px solid #ffffff30;background:#ffffff13;color:#fff;backdrop-filter:blur(8px)}
+.dashboard-hero-actions button:first-child{background:#f2bd57;color:#203449;border-color:#f2bd57}
+.dashboard-body{padding:20px 20px 22px}
+.dashboard-section{margin-top:19px}
+.dashboard-section .section-head{margin-bottom:11px}
+.dashboard-section .section-head h2{font-size:16px;color:#19384e}
+.dashboard-section .section-head .muted{color:#738493}
+.dashboard-grid{gap:11px}
+.dashboard-card{position:relative;overflow:hidden;min-height:124px;border:0;border-radius:15px;padding:16px 17px;color:#fff;box-shadow:0 9px 20px #18374a18}
+.dashboard-card:after{content:"";position:absolute;width:110px;height:110px;border:1px solid #ffffff25;border-radius:50%;right:-32px;top:-48px;box-shadow:0 0 0 14px #ffffff08,0 0 0 29px #ffffff06}
+.dashboard-card:nth-child(1){background:linear-gradient(135deg,#183d61,#23658b)}
+.dashboard-card:nth-child(2){background:linear-gradient(135deg,#14534f,#218c7b)}
+.dashboard-card:nth-child(3){background:linear-gradient(135deg,#40365f,#69538d)}
+.dashboard-card:nth-child(4){background:linear-gradient(135deg,#714326,#b66b35)}
+.dashboard-card:nth-child(4):after{width:132px;height:132px;right:-42px;top:-58px;box-shadow:0 0 0 16px #ffffff09,0 0 0 34px #ffffff06}
+.dashboard-card:nth-child(5){background:linear-gradient(135deg,#34465f,#526f91)}
+.dashboard-card:nth-child(5):after{width:92px;height:92px;right:18px;top:-35px;box-shadow:0 0 0 13px #ffffff09,0 0 0 27px #ffffff06}
+.dashboard-card h3{position:relative;z-index:1;color:#d8e8f0;font-size:11px;letter-spacing:.07em;text-transform:uppercase;margin:0 0 11px}
+.dashboard-status{position:relative;z-index:1;color:#fff;font-size:20px;letter-spacing:.01em}
+.dashboard-dot{width:9px;height:9px;background:#55e0a6;box-shadow:0 0 0 5px #55e0a622}
+.dashboard-dot.on{background:#ff7373;box-shadow:0 0 0 5px #ff737322}
+.dashboard-meta{position:relative;z-index:1;color:#d1e2ea;font-size:11px;margin-top:7px}
+.dashboard-feeder-grid{gap:11px}
+.dashboard-feeder{position:relative;overflow:hidden;border:1px solid #dce7ee;border-radius:14px;background:linear-gradient(145deg,#fff,#f6f9fc);padding:15px;box-shadow:0 5px 15px #17354b08}
+.dashboard-feeder:before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:linear-gradient(#2a8d9a,#edbd5c)}
+.dashboard-feeder h3{font-size:13px;color:#183b53;margin-bottom:10px}
+.dashboard-stat{font-size:11px;color:#687b89;margin:7px 0}
+.dashboard-stat strong{color:#19384e;font-weight:800}
+.dashboard-note{margin-top:15px;padding:10px 12px;border-radius:10px;background:#eaf2f6;color:#607786;font-size:10px}
+.dashboard-actions{display:none}
+@media(max-width:650px){
+ .dashboard-hero{padding:19px 17px 20px;min-height:220px}
+ .dashboard-brand-mark{width:45px;height:45px;border-radius:13px}
+ .dashboard-brand-text strong{font-size:13px}
+ .dashboard-live{font-size:10px;padding:6px 8px}
+ .dashboard-hero-copy{margin-top:23px}
+ .dashboard-hero-copy h2{font-size:27px}
+ .dashboard-hero-copy p{font-size:12px;max-width:310px}
+ .dashboard-hero-actions button{font-size:11px;padding:9px 11px}
+ .dashboard-body{padding:15px 12px 17px}
+ .dashboard-grid,.dashboard-feeder-grid{grid-template-columns:1fr}
+ .dashboard-card{min-height:112px}
+}
+
+
+/* Load trend analysis */
+.trends-intro{padding:17px 18px;border-radius:15px;background:linear-gradient(120deg,#122e46,#176b72);color:#fff;margin-bottom:15px}
+.trends-intro h2{margin:0 0 5px;color:#fff;font-size:20px}
+.trends-intro p{margin:0;color:#d7e8eb;font-size:12px;line-height:1.5}
+.trend-summary-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin:14px 0}
+.trend-kpi{background:linear-gradient(145deg,#fff,#f3f8fb);border:1px solid #dce7ee;border-radius:13px;padding:13px;min-width:0}
+.trend-kpi span{display:block;color:#718391;font-size:10px;font-weight:750;text-transform:uppercase;letter-spacing:.04em}
+.trend-kpi strong{display:block;color:#19384e;font-size:21px;font-weight:850;margin-top:5px;font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
+.trend-kpi small{display:block;color:#82919b;font-size:10px;margin-top:3px}
+.trend-card{background:#fff;border:1px solid #dce6ed;border-radius:15px;padding:15px;margin:12px 0;box-shadow:0 5px 16px #18374a08}
+.trend-card-head{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin-bottom:8px}
+.trend-card-head h3{margin:0;color:#19384e;font-size:14px}
+.trend-card-head p{margin:4px 0 0;color:#82919b;font-size:10px}
+.trend-legend{display:flex;gap:12px;flex-wrap:wrap;margin:7px 0 3px}
+.trend-legend span{display:inline-flex;align-items:center;gap:5px;font-size:10px;color:#637786}
+.trend-legend i{display:inline-block;width:16px;height:3px;border-radius:3px}
+.trend-chart{width:100%;overflow:hidden}
+.trend-chart svg{display:block;width:100%;height:auto;min-height:160px}
+.trend-chart text{font-family:inherit;fill:#82919b;font-size:10px}
+.trend-empty{display:grid;place-items:center;min-height:150px;border:1px dashed #cbd8e0;border-radius:10px;color:#80909c;font-size:12px;text-align:center;padding:20px}
+.trend-select{border:1px solid #ccd9e1;border-radius:9px;padding:9px 11px;background:#fff;color:#19384e;font:inherit;font-size:12px;max-width:100%}
+.trend-two-col{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.trend-stat-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.trend-stat{padding:10px;border-radius:10px;background:#f4f8fa}
+.trend-stat span{display:block;color:#758692;font-size:10px}
+.trend-stat strong{display:block;color:#1c3b51;font-size:14px;margin-top:3px}
+.trend-warning{padding:11px 13px;border-radius:10px;background:#fff7e7;border:1px solid #f2dfb5;color:#765a24;font-size:11px;line-height:1.5;margin-top:12px}
+@media(max-width:700px){.trend-summary-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.trend-two-col{grid-template-columns:1fr}.trend-card{padding:12px}.trend-card-head{flex-direction:column}.trend-chart svg{min-height:145px}}
+
+
+.archive-intro{padding:17px 18px;border-radius:15px;background:linear-gradient(120deg,#182e49,#355b75 62%,#19796f);color:#fff;margin-bottom:15px}
+.archive-intro h2{margin:0 0 5px;color:#fff;font-size:20px}.archive-intro p{margin:0;color:#d8e6ec;font-size:12px;line-height:1.5}
+.archive-toolbar{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin:12px 0}
+.archive-filters{display:flex;gap:8px;flex-wrap:wrap}.archive-list{display:grid;gap:10px}
+.archive-item{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:12px;align-items:center;padding:14px;background:#fff;border:1px solid #dce6ed;border-radius:13px;box-shadow:0 4px 14px #18374a08}
+.archive-item h3{margin:0;color:#19384e;font-size:13px}.archive-meta{margin-top:5px;color:#778995;font-size:10px}
+.archive-preview{white-space:pre-wrap;background:#f5f8fa;border:1px solid #e0e8ed;border-radius:10px;padding:13px;color:#344c5d;font:12px/1.55 ui-monospace,Consolas,monospace;max-height:380px;overflow:auto;margin-top:10px}
+.archive-actions{display:flex;gap:7px;flex-wrap:wrap;justify-content:flex-end}.archive-empty{padding:30px 15px;text-align:center;border:1px dashed #cbd8e0;border-radius:12px;color:#7b8c98;background:#fafcfd;font-size:12px}
+.archive-count{font-size:11px;color:#718391}.archive-type{display:inline-block;padding:4px 7px;border-radius:6px;background:#eaf2f5;color:#456578;font-size:9px;font-weight:800;letter-spacing:.04em;text-transform:uppercase;margin-right:6px}
+.archive-detail{margin-top:10px}.archive-save-status{font-size:10px;color:#4b786c;margin-left:7px}
+@media(max-width:600px){.archive-item{grid-template-columns:1fr}.archive-actions{justify-content:flex-start}.archive-actions button{flex:1}}
+
+
+.archive-copy-modal{position:fixed;inset:0;z-index:99999;background:#102030b8;display:flex;align-items:center;justify-content:center;padding:16px}
+.archive-copy-dialog{width:min(620px,100%);max-height:90vh;overflow:auto;background:#fff;border-radius:16px;padding:18px;box-shadow:0 20px 60px #0005}
+.archive-copy-dialog h3{margin:0 0 7px;color:#18384e;font-size:18px}
+.archive-copy-dialog p{margin:0 0 12px;color:#617584;font-size:12px;line-height:1.5}
+.archive-copy-dialog textarea{display:block;width:100%;min-height:260px;max-height:55vh;resize:vertical;border:1px solid #bdccd6;border-radius:10px;padding:12px;background:#f7fafc;color:#203849;font:13px/1.55 ui-monospace,Consolas,monospace;white-space:pre;overflow:auto;user-select:text;-webkit-user-select:text}
+.archive-copy-dialog .archive-copy-actions{display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap;margin-top:12px}
+
+
+/* Outage and fault register */
+.fault-intro{padding:17px 18px;border-radius:15px;background:linear-gradient(120deg,#1a3047,#315d75 58%,#9a5c38);color:#fff;margin-bottom:15px}
+.fault-intro h2{margin:0 0 5px;color:#fff;font-size:20px}.fault-intro p{margin:0;color:#e1e9ed;font-size:12px;line-height:1.5}
+.fault-form{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:11px}
+.fault-field{display:flex;flex-direction:column;gap:5px;min-width:0}.fault-field.full{grid-column:1/-1}
+.fault-field label{font-size:11px;font-weight:750;color:#536a79}
+.fault-field input,.fault-field select,.fault-field textarea{width:100%;min-width:0;border:1px solid #cbd8e0;border-radius:9px;padding:10px 11px;background:#fff;color:#20394a;font:inherit;font-size:13px}
+.fault-field textarea{min-height:76px;resize:vertical}
+.fault-form-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.fault-summary{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px;margin:13px 0}
+.fault-kpi{border:1px solid #dce6ed;border-radius:12px;padding:12px;background:linear-gradient(145deg,#fff,#f4f8fa)}
+.fault-kpi span{display:block;color:#738592;font-size:10px;font-weight:750;text-transform:uppercase}.fault-kpi strong{display:block;color:#1c3b51;font-size:20px;margin-top:4px}
+.fault-table-wrap{overflow:auto;border:1px solid #dce6ed;border-radius:12px;background:#fff}
+.fault-table{width:100%;min-width:850px;border-collapse:collapse;font-size:11px}
+.fault-table th,.fault-table td{padding:10px 9px;border-bottom:1px solid #e6edf1;text-align:left;vertical-align:top}
+.fault-table th{background:#edf3f6;color:#506777;position:sticky;top:0;z-index:1;font-size:10px}
+.fault-table td{color:#344d5e;line-height:1.45}
+.fault-status{display:inline-block;padding:4px 7px;border-radius:6px;font-size:9px;font-weight:800;background:#fff0df;color:#92551d}
+.fault-status.restored{background:#e6f4ec;color:#26704c}
+.fault-row-actions{display:flex;gap:5px;flex-wrap:wrap}.fault-row-actions button{padding:6px 8px;font-size:10px}
+.fault-empty{padding:28px 14px;text-align:center;color:#7b8c98;border:1px dashed #cbd8e0;border-radius:12px;background:#fafcfd;font-size:12px}
+.fault-filterbar{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:12px 0}
+.fault-filterbar select,.fault-filterbar input{max-width:100%;border:1px solid #cbd8e0;border-radius:9px;padding:9px 10px;background:#fff;color:#20394a;font:inherit;font-size:12px}
+.fault-duration{font-weight:800;color:#244e68;white-space:nowrap}
+@media(max-width:600px){.fault-form{grid-template-columns:1fr}.fault-field.full{grid-column:auto}.fault-summary{grid-template-columns:1fr 1fr}.fault-intro{padding:15px}}
+
+
+/* Equipment inspection register */
+.equipment-intro{padding:17px 18px;border-radius:15px;background:linear-gradient(120deg,#1a3047,#315d75 58%,#28766c);color:#fff;margin-bottom:15px}
+.equipment-intro h2{margin:0 0 5px;color:#fff;font-size:20px}.equipment-intro p{margin:0;color:#e1e9ed;font-size:12px;line-height:1.5}
+.equipment-summary{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:9px;margin:13px 0}
+.equipment-kpi{border:1px solid #dce6ed;border-radius:12px;padding:12px;background:linear-gradient(145deg,#fff,#f4f8fa)}
+.equipment-kpi span{display:block;color:#738592;font-size:10px;font-weight:750;text-transform:uppercase}.equipment-kpi strong{display:block;color:#1c3b51;font-size:20px;margin-top:4px}
+.equipment-form{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:11px}
+.equipment-field{display:flex;flex-direction:column;gap:5px;min-width:0}.equipment-field.full{grid-column:1/-1}
+.equipment-field label{font-size:11px;font-weight:750;color:#536a79}
+.equipment-field input,.equipment-field select,.equipment-field textarea{width:100%;min-width:0;border:1px solid #cbd8e0;border-radius:9px;padding:10px 11px;background:#fff;color:#20394a;font:inherit;font-size:13px}
+.equipment-field textarea{min-height:76px;resize:vertical}
+.equipment-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.equipment-filterbar{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:12px 0}
+.equipment-filterbar select,.equipment-filterbar input{max-width:100%;border:1px solid #cbd8e0;border-radius:9px;padding:9px 10px;background:#fff;color:#20394a;font:inherit;font-size:12px}
+.equipment-table-wrap{overflow:auto;border:1px solid #dce6ed;border-radius:12px;background:#fff}
+.equipment-table{width:100%;min-width:900px;border-collapse:collapse;font-size:11px}
+.equipment-table th,.equipment-table td{padding:10px 9px;border-bottom:1px solid #e6edf1;text-align:left;vertical-align:top}
+.equipment-table th{background:#edf3f6;color:#506777;position:sticky;top:0;z-index:1;font-size:10px}
+.equipment-table td{color:#344d5e;line-height:1.45}
+.equipment-condition{display:inline-block;padding:4px 7px;border-radius:6px;font-size:9px;font-weight:800;background:#e6f4ec;color:#26704c}
+.equipment-condition.attention{background:#fff4d9;color:#8a641c}.equipment-condition.defect{background:#fde8e7;color:#a33c38}
+.equipment-open{font-weight:800;color:#a45b32}.equipment-closed{font-weight:800;color:#26704c}
+.equipment-empty{padding:28px 14px;text-align:center;color:#7b8c98;border:1px dashed #cbd8e0;border-radius:12px;background:#fafcfd;font-size:12px}
+.equipment-row-actions{display:flex;gap:5px;flex-wrap:wrap}.equipment-row-actions button{padding:6px 8px;font-size:10px}
+@media(max-width:600px){.equipment-form{grid-template-columns:1fr}.equipment-field.full{grid-column:auto}.equipment-summary{grid-template-columns:1fr 1fr}}
+
+
+/* PDF report print controls and metadata */
+.report-meta-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:11px}
+.report-meta-grid label{display:flex;flex-direction:column;gap:5px;color:#536a79;font-size:11px;font-weight:750}
+.report-meta-grid input{width:100%;border:1px solid #cbd8e0;border-radius:9px;padding:10px 11px;background:#fff;color:#20394a;font:inherit;font-size:13px}
+.report-meta-note{margin-top:10px;font-size:11px;line-height:1.5}
+@media(max-width:600px){.report-meta-grid{grid-template-columns:1fr}}
+
+
+/* Operational alerts */
+.alerts-hero{padding:17px 18px;border-radius:15px;background:linear-gradient(120deg,#182f45,#315c72 58%,#9a6337);color:#fff;margin-bottom:15px}
+.alerts-hero h2{margin:0 0 5px;color:#fff;font-size:20px}.alerts-hero p{margin:0;color:#e1e9ed;font-size:12px;line-height:1.5}
+.alerts-summary{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px;margin:13px 0}
+.alert-kpi{border:1px solid #dce6ed;border-radius:12px;padding:12px;background:linear-gradient(145deg,#fff,#f4f8fa)}
+.alert-kpi span{display:block;color:#738592;font-size:10px;font-weight:750;text-transform:uppercase}.alert-kpi strong{display:block;color:#1c3b51;font-size:21px;margin-top:4px}
+.alert-list{display:grid;gap:9px}
+.alert-item{display:flex;gap:11px;align-items:flex-start;padding:13px;border:1px solid #dce6ed;border-left:4px solid #d49a37;border-radius:11px;background:#fff}
+.alert-item.critical{border-left-color:#c84d46}.alert-item.info{border-left-color:#47869b}
+.alert-symbol{width:30px;height:30px;flex:0 0 30px;border-radius:9px;background:#fff3dc;color:#94631c;display:grid;place-items:center;font-weight:900}
+.alert-item.critical .alert-symbol{background:#fde9e7;color:#a83d37}.alert-item.info .alert-symbol{background:#e8f3f6;color:#356b7c}
+.alert-copy{min-width:0;flex:1}.alert-copy strong{display:block;color:#263f50;font-size:13px}.alert-copy p{margin:4px 0 0;color:#617583;font-size:11px;line-height:1.5}
+.alert-level{font-size:9px;font-weight:850;letter-spacing:.5px;color:#94631c}.alert-item.critical .alert-level{color:#a83d37}
+.alert-settings{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:11px}
+.alert-setting{display:flex;flex-direction:column;gap:5px}.alert-setting label{font-size:11px;font-weight:750;color:#536a79}
+.alert-setting input,.alert-setting select{width:100%;border:1px solid #cbd8e0;border-radius:9px;padding:10px 11px;background:#fff;color:#20394a;font:inherit;font-size:13px}
+.alert-setting small{font-size:10px;color:#788a96;line-height:1.4}
+.alert-empty{padding:26px 14px;text-align:center;color:#26704c;border:1px dashed #b9d8c7;border-radius:12px;background:#f5fbf7;font-size:12px}
+.alert-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.alert-banner{margin:0 0 14px;padding:11px 13px;border-radius:11px;background:linear-gradient(110deg,#fff3dd,#fffaf0);border:1px solid #f0d8a9;color:#79551d;font-size:12px;display:flex;align-items:center;justify-content:space-between;gap:10px}
+.alert-banner strong{font-size:13px}
+@media(max-width:600px){.alerts-summary{grid-template-columns:1fr 1fr}.alert-settings{grid-template-columns:1fr}}
+
+
+
+/* Make each Settings group visually distinct. */
+#settingsPage > .trend-card,
+#settingsPage #topologySettingsHost > .trend-card,
+#settingsPage #topologySettingsHost .trend-card {
+  border: 2px solid #9aabba;
+  box-shadow: 0 4px 14px #18374a12;
+}
+#settingsPage > .trend-card {
+  border-color: #8299aa;
+}
+#settingsPage #topologySettingsHost .trend-card {
+  border-color: #a2b2bf;
+}
+
+
+/* Consumption columns are sized by their widest actual header or cell content. */
+.consumption-table{table-layout:fixed;width:max-content;min-width:100%}
+.consumption-table .data-cell,
+.consumption-table .sheet-head .data-cell,
+.consumption-table .letters th:not(:first-child):not(:nth-child(2)){width:auto;min-width:0;max-width:none}
+\n</style>
+<link rel="manifest" href="./manifest.webmanifest">
+<link rel="icon" href="./icon-192.png" sizes="192x192">
+<link rel="apple-touch-icon" href="./icon-192.png">
+</head>
+<body>
+
+<header>
+  <div class="eyebrow">BEDC Electricity Plc · Operations</div>
+  <h1>Injection Substation Logbook</h1>
+  <p>33kV / 11kV feeder control, supply tracking and availability records</p>
+</header>
+<main>
+
+  <div class="menu-tabs" role="tablist" aria-label="Logbook sections">
+    <button class="menu-tab active" id="dashboardTab" role="tab" aria-selected="true" aria-controls="dashboardPage">Dashboard</button>
+    <button class="menu-tab" id="logTab" role="tab" aria-selected="false" aria-controls="logPage">Log</button>
+    <button class="menu-tab" id="loadTab" role="tab" aria-selected="false" aria-controls="loadPage">Load</button>
+    <button class="menu-tab" id="consumptionTab" role="tab" aria-selected="false" aria-controls="consumptionPage">Consumption</button>
+    <button class="menu-tab" id="trendsTab" role="tab" aria-selected="false" aria-controls="trendsPage">Trends</button>
+    <button class="menu-tab" id="archiveTab" role="tab" aria-selected="false" aria-controls="archivePage">Archive</button>
+    <button class="menu-tab" id="faultsTab" role="tab" aria-selected="false" aria-controls="faultsPage">Outage Register</button>
+    <button class="menu-tab" id="equipmentTab" role="tab" aria-selected="false" aria-controls="equipmentPage">Equipment</button>
+    <button class="menu-tab" id="alertsTab" role="tab" aria-selected="false" aria-controls="alertsPage">Alerts</button>
+    <button class="menu-tab" id="backupTab" role="tab" aria-selected="false" aria-controls="backupPage">Backup</button>
+    <button class="menu-tab" id="settingsTab" role="tab" aria-selected="false" aria-controls="settingsPage">Settings</button>
+  </div>
+
+
+  <section id="dashboardPage" class="page-panel" aria-labelledby="dashboardHeading">
+    <div class="section dashboard-shell" style="margin-top:0">
+      <div class="dashboard-hero">
+        <div class="dashboard-hero-top">
+          <div class="dashboard-brand">
+            <div class="dashboard-brand-mark" aria-hidden="true">
+              <svg viewBox="0 0 48 48" fill="none">
+                <path d="M8 37h32M12 37V22h24v15M17 22V15h14v7M21 15V9h6v6" stroke="#F4C66C" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M5 17l7-5 7 5M29 17l7-5 7 5M12 12v-4m24 4v-4" stroke="#D8F0F1" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M20 37V28h8v9M5 42h38" stroke="#fff" stroke-width="2" stroke-linecap="round"/>
+                <path d="M23 20l-3 5h4l-1 4 5-7h-4l2-2" fill="#F4C66C"/>
+              </svg>
+            </div>
+            <div class="dashboard-brand-text"><small>BEDC Electricity Plc</small><strong id="dashboardSubstationName">Orogun Injection Substation</strong></div>
+          </div>
+          <div class="dashboard-live"><i></i> LIVE OPERATIONS</div>
+        </div>
+        <div class="dashboard-hero-copy">
+          <div class="eyebrow">33kV / 11kV Operations Centre</div>
+          <h2 id="dashboardHeading">Substation Dashboard</h2>
+          <p>Feeder status, supply availability and load readings in one operational view.</p>
+        </div>
+        <div class="dashboard-hero-actions">
+          <button id="dashboardOpenLog">Open Feeder Log</button>
+          <button id="dashboardOpenLoad">View Load Readings</button>
+          <button id="dashboardDailyReport">Daily Report</button>
+        </div>
+      </div>
+      <div class="dashboard-body">
+        <div class="alert-banner" id="dashboardAlertBanner"><strong>Operational alerts loading…</strong></div>
+        <div class="section-head" style="margin-bottom:11px">
+          <div><div class="eyebrow" style="color:#668092">Operational overview</div><div class="muted" id="dashboardUpdated">Live summary of feeder status and recorded load data.</div></div>
+        </div>
+        <div class="dashboard-grid" id="dashboardOverview"></div>
+        <div class="dashboard-section">
+          <div class="section-head"><div><h2>Feeder Availability</h2><div class="muted">Cumulative availability from the current monitoring session start.</div></div></div>
+          <div class="dashboard-feeder-grid" id="dashboardAvailability"></div>
+        </div>
+        <div class="dashboard-section">
+          <div class="section-head"><div><h2>Latest Load Readings</h2><div class="muted">Latest energy entries and highest recorded phase current.</div></div></div>
+          <div class="dashboard-feeder-grid" id="dashboardLoad"></div>
+        </div>
+        <div class="dashboard-note">Dashboard values update automatically from the Log and Load sections. Blank readings are shown as Nil. Load summaries use the values currently entered in the hourly sheet.</div>
+      </div>
+    </div>
+  </section>
+  <div id="logPage" class="page-panel" hidden>
+  <div class="topbar">
+    <div><div class="session" id="sessionInfo">Monitoring session</div><div class="muted" style="font-size:12px">New operational days start at 00:00.</div><div class="muted" id="clock"></div><button class="btn-light" id="editSessionBtn" style="margin-top:7px;padding:7px 10px">Edit session start time</button></div>
+    <div class="actions">
+      <button class="btn-primary" id="startNewDayBtn" type="button">Start New Day</button>
+      <button class="btn-light" id="manualBtn">＋ Add manual record</button>
+      <button class="btn-danger" id="resetBtn">Reset session</button>
+    </div>
+  </div>
+
+  <div class="grid" id="feederCards"></div>
+
+  <section class="section">
+    <div class="section-head">
+      <div><h2>Supply availability</h2><div class="muted">Cumulative ON and OFF durations from the current session start to now.</div></div>
+      <div class="actions"><button class="btn-primary" id="calcBtn">Calculate availability</button><button class="btn-light" id="clearCalcBtn">Clear calculations</button></div>
+    </div>
+    <div id="reports"><div class="empty">Press “Calculate availability” to generate the report.</div></div>
+  </section>
+
+  <section class="section">
+    <div class="section-head">
+      <div><h2>Chronological operations log</h2><div class="muted">All events are stored on this device. Edit a timestamp to recalculate durations and reorder the log.</div></div>
+      <div class="log-tools"><button class="btn-light" id="exportLogCsvBtn">Export CSV</button><button class="btn-light" id="manualBtn2">＋ Add record</button></div>
+    </div>
+    <div class="log-list" id="logList"></div>
+  </section>
+  <p class="note">Times use your device's local time. Set your device to Nigeria time (WAT, UTC+1) for BEDC operating records. Data is saved in this browser on this device. Clearing browser site data or changing devices can remove locally stored records.</p>
+  </div>
+  <section id="loadPage" class="page-panel section" hidden>
+    <div class="load-toolbar">
+      <div><h2>Feeder Load Record</h2><div class="muted">Hourly energy readings for each configured 11kV incomer and phase current and energy readings for each outgoing feeder.</div></div>
+      <div class="archive-actions">
+        <button class="btn-primary" id="generateMissingReadingsBtn" type="button">Generate Missing Readings</button>
+        <button class="btn-danger" id="clearLoadBtn">Clear load data</button>
+      </div>
+    </div>
+    <p class="load-help">Enter readings in the cells. Changes are saved automatically on this device and remain available until you clear them. Generated values are estimates and are marked with an asterisk.</p>
+    <div class="load-scroll" tabindex="0" aria-label="Scrollable feeder load table">
+      <table class="load-table" aria-label="Hourly feeder load readings">
+        <thead id="loadHead"></thead>
+        <tbody id="loadRows"></tbody>
+      </table>
+    </div>
+    <div class="muted" id="loadSaveStatus" style="margin-top:9px">All changes are saved automatically.</div>
+    <div class="daily-report-tools"><button class="btn-primary" id="dailyReportBtn">Daily Report</button></div>
+    <div class="daily-report-box" id="dailyReportBox" aria-live="polite">
+      <div class="daily-report-head"><h3 id="dailyReportHeading">Orogun ISS Daily Availability Report</h3><div class="archive-actions"><button type="button" class="btn-light" id="saveDailyArchiveBtn">Save to Archive</button><button class="btn-light" id="copyDailyReportBtn">Copy report</button><button type="button" class="btn-primary" id="printDailyReportBtn">Print / Save PDF</button></div></div>
+      <pre class="daily-report-content" id="dailyReportContent"></pre><div class="archive-save-status" id="dailyArchiveStatus" aria-live="polite"></div>
+    </div>
+  </section>
+  <section id="trendsPage" class="page-panel section" hidden>
+    <div class="trends-intro">
+      <h2>Load Trend Analysis</h2>
+      <p>Review hourly phase currents, feeder energy readings, peak demand and phase loading balance from the current 24-hour Load Record.</p>
+    </div>
+    <div class="load-toolbar">
+      <div><h2>Current and Energy Overview</h2><div class="muted">Calculated from the hourly readings currently saved in this logbook.</div></div>
+      <button class="btn-light" id="refreshTrendsBtn">Refresh analysis</button>
+    </div>
+    <div class="trend-summary-grid" id="trendSummary"></div>
+
+    <div class="trend-card">
+      <div class="trend-card-head"><div><h3>Fed. Polytechnic Feeder Phase Currents</h3><p>Hourly R, Y and B phase current readings in amperes.</p></div></div>
+      <div class="trend-legend"><span><i style="background:#dc5353"></i>R phase</span><span><i style="background:#d6a12e"></i>Y phase</span><span><i style="background:#347bb5"></i>B phase</span></div>
+      <div class="trend-chart" id="trendFedCurrent"></div>
+    </div>
+    <div class="trend-card">
+      <div class="trend-card-head"><div><h3>Orhoerha/Emonu Feeder Phase Currents</h3><p>Hourly R, Y and B phase current readings in amperes.</p></div></div>
+      <div class="trend-legend"><span><i style="background:#dc5353"></i>R phase</span><span><i style="background:#d6a12e"></i>Y phase</span><span><i style="background:#347bb5"></i>B phase</span></div>
+      <div class="trend-chart" id="trendOrhoCurrent"></div>
+    </div>
+    <div class="trend-card">
+      <div class="trend-card-head"><div><h3>Hourly Energy Readings</h3><p>Incomer and both 11kV feeder energy entries in MWh.</p></div></div>
+      <div class="trend-legend"><span><i style="background:#183f63"></i>Incomer</span><span><i style="background:#168779"></i>Fed. Polytechnic</span><span><i style="background:#9a70b6"></i>Orhoerha/Emonu</span></div>
+      <div class="trend-chart" id="trendEnergy"></div>
+    </div>
+    <div class="trend-two-col">
+      <div class="trend-card">
+        <div class="trend-card-head"><div><h3>Fed. Polytechnic Load Statistics</h3><p>Peak, minimum positive and average phase current.</p></div></div>
+        <div class="trend-stat-list" id="trendFedStats"></div>
+      </div>
+      <div class="trend-card">
+        <div class="trend-card-head"><div><h3>Orhoerha/Emonu Load Statistics</h3><p>Peak, minimum positive and average phase current.</p></div></div>
+        <div class="trend-stat-list" id="trendOrhoStats"></div>
+      </div>
+    </div>
+    <div class="trend-card">
+      <div class="trend-card-head"><div><h3>Phase Imbalance Analysis</h3><p>Percentage deviation of the highest phase current from the three-phase average, calculated for each hour with all three phase readings present and above zero.</p></div></div>
+      <div class="trend-two-col">
+        <div><h3 style="font-size:12px;color:#19384e">Fed. Polytechnic</h3><div class="trend-stat-list" id="trendFedBalance"></div></div>
+        <div><h3 style="font-size:12px;color:#19384e">Orhoerha/Emonu</h3><div class="trend-stat-list" id="trendOrhoBalance"></div></div>
+      </div>
+      <div class="trend-warning">This is an indicative phase-current imbalance calculation, not a protection relay setting or power-quality assessment. It excludes hours with missing or zero phase readings. Investigate persistent high imbalance using approved site procedures and instruments.</div>
+    </div>
+    <div class="trend-warning">Analysis uses only the current hourly Load Record. The app does not yet store dated daily load history, so comparisons across previous days or months are not included.</div>
+  </section>
+  <section id="archivePage" class="page-panel section" hidden>
+    <div class="archive-intro"><h2>Historical Report Archive</h2><p>Keep dated snapshots of your daily and monthly reports. Open, copy or download an earlier report whenever you need it.</p></div>
+    <div class="load-toolbar"><div><h2>Saved Reports</h2><div class="muted">Reports are stored on this device in this browser.</div></div><button class="btn-light" id="refreshArchiveBtn">Refresh</button></div>
+    <div class="archive-toolbar">
+      <div class="archive-filters">
+        <select id="archiveTypeFilter" class="trend-select" aria-label="Filter report type"><option value="all">All report types</option><option value="daily">Daily reports</option><option value="monthly">Monthly reports</option></select>
+        <input id="archiveSearch" class="trend-select" type="search" placeholder="Search report title or date" aria-label="Search archived reports">
+      </div>
+      <div class="archive-count" id="archiveCount">0 saved reports</div>
+    </div>
+    <div class="archive-list" id="archiveList"></div>
+    <div class="trend-warning">Archived reports are saved snapshots. Changes to current readings will not alter reports already saved. Use Backup and Restore to transfer your archive to another device.</div>
+  </section>
+  <section id="faultsPage" class="page-panel section" hidden>
+    <div class="fault-intro">
+      <h2>Outage and Fault Register</h2>
+      <p>Record feeder outages, trip causes, restoration times and corrective actions. Entries are stored separately from the automatic feeder switching log.</p>
+    </div>
+    <div class="fault-summary" id="faultSummary"></div>
+    <div class="trend-card">
+      <div class="trend-card-head"><div><h3 id="faultFormHeading">Record an outage or fault</h3><p>Enter the event details. Leave restoration time blank while the outage is ongoing.</p></div></div>
+      <form id="faultForm">
+        <div class="fault-form">
+          <div class="fault-field"><label for="faultFeeder">Affected feeder</label><select id="faultFeeder" required></select></div>
+          <div class="fault-field"><label for="faultCause">Outage cause / category</label><select id="faultCause" required><option value="">Select cause</option><option>Protection trip</option><option>Equipment failure</option><option>Transformer fault</option><option>Cable fault</option><option>Overload</option><option>Upstream supply interruption</option><option>Planned maintenance</option><option>Operational switching</option><option>Weather / external interference</option><option>Unknown / under investigation</option><option>Other</option></select></div>
+          <div class="fault-field"><label for="faultStart">Outage start date and time</label><input id="faultStart" type="datetime-local" required></div>
+          <div class="fault-field"><label for="faultRestore">Supply restoration date and time</label><input id="faultRestore" type="datetime-local"></div>
+          <div class="fault-field full"><label for="faultDescription">Fault description / observations</label><textarea id="faultDescription" placeholder="Describe the trip indication, affected equipment, alarms or field observations."></textarea></div>
+          <div class="fault-field full"><label for="faultAction">Action taken / corrective work</label><textarea id="faultAction" placeholder="Record inspection, isolation, repair, testing and restoration actions."></textarea></div>
+          <div class="fault-field"><label for="faultReference">Reference / work order (optional)</label><input id="faultReference" type="text" placeholder="Enter reference number"></div>
+          <div class="fault-field"><label for="faultOperator">Recorded by (optional)</label><input id="faultOperator" type="text" placeholder="Operator name or initials"></div>
+        </div>
+        <div class="fault-form-actions"><button class="btn-primary" id="saveFaultBtn" type="submit">Save outage record</button><button class="btn-light" id="cancelFaultEditBtn" type="button" hidden>Cancel edit</button></div>
+        <div class="muted" id="faultFormStatus" aria-live="polite" style="margin-top:8px"></div>
+      </form>
+    </div>
+    <div class="trend-card">
+      <div class="trend-card-head"><div><h3>Recorded Outages and Faults</h3><p>Ongoing outages remain open until a restoration time is entered.</p></div><button class="btn-light" id="exportFaultCsvBtn" type="button">Export CSV</button></div>
+      <div class="fault-filterbar">
+        <select id="faultStatusFilter"><option value="all">All statuses</option><option value="open">Ongoing only</option><option value="restored">Restored only</option></select>
+        <select id="faultFeederFilter"><option value="all">All feeders</option></select>
+        <input id="faultSearch" type="search" placeholder="Search cause, description or reference">
+      </div>
+      <div id="faultTableHost"></div>
+    </div>
+    <div class="trend-warning">Outage duration is calculated from the recorded start and restoration times. For ongoing events, the duration shown is measured up to the current time and updates when the register is refreshed. This register does not operate breakers or alter feeder availability calculations.</div>
+  </section>
+  <section id="equipmentPage" class="page-panel section" hidden>
+    <div class="equipment-intro">
+      <h2>Equipment Inspection Register</h2>
+      <p>Record routine inspections, equipment condition, operating readings, defects and maintenance actions at the injection substation.</p>
+    </div>
+    <div class="equipment-summary" id="equipmentSummary"></div>
+    <div class="trend-card">
+      <div class="trend-card-head"><div><h3 id="equipmentFormHeading">Record an equipment inspection</h3><p>Record the condition and readings observed during inspection. Use the action field to document follow-up work.</p></div></div>
+      <form id="equipmentForm">
+        <div class="equipment-form">
+          <div class="equipment-field"><label for="equipmentCategory">Equipment category</label><select id="equipmentCategory" required>
+            <option value="">Select category</option><option>Power transformer</option><option>33kV incomer breaker / switchgear</option><option>11kV feeder breaker</option><option>Busbar / bus coupler</option><option>Protection relay</option><option>CT / VT</option><option>Battery bank / DC charger</option><option>Earthing system</option><option>Auxiliary supply</option><option>Fire protection system</option><option>Other</option>
+          </select></div>
+          <div class="equipment-field"><label for="equipmentName">Equipment name / identification</label><input id="equipmentName" required placeholder="e.g. 15MVA Transformer T1"></div>
+          <div class="equipment-field"><label for="equipmentDate">Inspection date and time</label><input id="equipmentDate" type="datetime-local" required></div>
+          <div class="equipment-field"><label for="equipmentCondition">Condition</label><select id="equipmentCondition" required><option value="normal">Normal</option><option value="attention">Requires attention</option><option value="defect">Defect identified</option></select></div>
+          <div class="equipment-field"><label for="equipmentStatus">Follow-up status</label><select id="equipmentStatus"><option value="open">Action pending / open</option><option value="closed">Action completed / closed</option><option value="monitor">Monitor at next inspection</option></select></div>
+          <div class="equipment-field"><label for="equipmentNextDate">Next inspection due (optional)</label><input id="equipmentNextDate" type="date"></div>
+          <div class="equipment-field full"><label for="equipmentReadings">Readings / measurements (optional)</label><textarea id="equipmentReadings" placeholder="e.g. Transformer oil temperature: 58°C; winding temperature: 64°C; battery voltage: 110V DC; charger output:  float."></textarea></div>
+          <div class="equipment-field full"><label for="equipmentObservations">Inspection findings / observations</label><textarea id="equipmentObservations" required placeholder="Describe the equipment condition, abnormal indications, leaks, noise, smell, alarms or other findings."></textarea></div>
+          <div class="equipment-field full"><label for="equipmentAction">Action taken / recommended maintenance</label><textarea id="equipmentAction" placeholder="Record corrective action, isolation, maintenance request or follow-up recommendation."></textarea></div>
+          <div class="equipment-field"><label for="equipmentInspector">Inspected by (optional)</label><input id="equipmentInspector" placeholder="Operator name or initials"></div>
+          <div class="equipment-field"><label for="equipmentReference">Work order / reference (optional)</label><input id="equipmentReference" placeholder="Reference number"></div>
+        </div>
+        <div class="equipment-actions"><button class="btn-primary" id="saveEquipmentBtn" type="submit">Save inspection</button><button class="btn-light" id="cancelEquipmentEditBtn" type="button" hidden>Cancel edit</button></div>
+        <div class="muted" id="equipmentFormStatus" aria-live="polite" style="margin-top:8px"></div>
+      </form>
+    </div>
+    <div class="trend-card">
+      <div class="trend-card-head"><div><h3>Inspection History</h3><p>Review previous inspections and track unresolved findings.</p></div><button class="btn-light" id="exportEquipmentCsvBtn" type="button">Export CSV</button></div>
+      <div class="equipment-filterbar">
+        <select id="equipmentCategoryFilter"><option value="all">All equipment</option><option>Power transformer</option><option>33kV incomer breaker / switchgear</option><option>11kV feeder breaker</option><option>Busbar / bus coupler</option><option>Protection relay</option><option>CT / VT</option><option>Battery bank / DC charger</option><option>Earthing system</option><option>Auxiliary supply</option><option>Fire protection system</option><option>Other</option></select>
+        <select id="equipmentConditionFilter"><option value="all">All conditions</option><option value="normal">Normal</option><option value="attention">Requires attention</option><option value="defect">Defect identified</option></select>
+        <select id="equipmentStatusFilter"><option value="all">All follow-up statuses</option><option value="open">Action pending</option><option value="closed">Completed</option><option value="monitor">Monitor</option></select>
+        <input id="equipmentSearch" type="search" placeholder="Search equipment or findings">
+      </div>
+      <div id="equipmentTableHost"></div>
+    </div>
+    <div class="trend-warning">This register stores inspection records for documentation and maintenance follow-up. It does not monitor equipment sensors, verify protection settings or replace approved switching, safety and maintenance procedures.</div>
+  </section>
+  <section id="consumptionPage" class="page-panel section" hidden>
+    <div class="load-toolbar">
+      <div><h2>Monthly Feeder Availability and Consumption</h2><div class="muted">Editable daily availability durations and monthly energy readings.</div></div>
+      <button class="btn-danger" id="clearConsumptionBtn">Clear consumption data</button>
+    </div>
+    <p class="load-help">Enter durations as hours:minutes (H:MM), for example 7:30. Blank duration cells are excluded from averages; zero durations are included. Calculated rows update automatically and all entries are saved on this device.</p>
+    <div class="consumption-scroll" tabindex="0" aria-label="Scrollable monthly consumption spreadsheet">
+      <table class="consumption-table" aria-label="Monthly feeder availability and consumption">
+        <colgroup id="consumptionColgroup"><col style="width:48px"><col style="width:185px"></colgroup>
+        <thead id="consumptionHead"></thead><tbody id="consumptionRows"></tbody>
+      </table>
+    </div>
+    <div class="muted" id="consumptionSaveStatus" style="margin-top:9px">All changes are saved automatically.</div>
+    <div class="daily-report-tools"><button class="btn-primary" id="monthlyReportBtn">Monthly Report</button></div>
+    <div class="daily-report-box" id="monthlyReportBox" aria-live="polite">
+      <div class="daily-report-head"><h3 id="monthlyReportHeading">Orogun ISS Monthly Availability Report</h3><div class="archive-actions"><button type="button" class="btn-light" id="saveMonthlyArchiveBtn">Save to Archive</button><button class="btn-light" id="copyMonthlyReportBtn">Copy report</button><button type="button" class="btn-primary" id="printMonthlyReportBtn">Print / Save PDF</button></div></div>
+      <pre class="daily-report-content" id="monthlyReportContent"></pre><div class="archive-save-status" id="monthlyArchiveStatus" aria-live="polite"></div>
+    </div>
+  </section>
+
+  </section>
+    <div class="trend-card report-meta-card" id="pdfReportDetails" hidden>
+      <div class="trend-card-head"><div><h3>PDF Report Details</h3><p>These details appear on printed daily and monthly reports.</p></div></div>
+      <div class="report-meta-grid">
+        <label>Substation name<input id="pdfSubstationName" type="text" value="Orogun Injection Substation" maxlength="100" readonly></label>
+        <label>Prepared by<input id="pdfPreparedBy" type="text" placeholder="Name / designation" maxlength="100"></label>
+        <label>Checked by<input id="pdfCheckedBy" type="text" placeholder="Name / designation" maxlength="100"></label>
+        <label>Report reference (optional)<input id="pdfReportReference" type="text" placeholder="Reference number" maxlength="80"></label>
+      </div>
+      <p class="muted report-meta-note">Use Print / Save PDF on a generated daily or monthly report. In the print window, select Save as PDF if your browser offers that option.</p>
+    </div>
+  <section id="alertsPage" class="page-panel section" hidden>
+    <div class="alerts-hero">
+      <h2>Operational Alerts</h2>
+      <p>Review feeder supply allowance, recorded outages and equipment inspection issues. Alerts are generated from the information stored in this logbook.</p>
+    </div>
+    <div class="alerts-summary" id="alertsSummary"></div>
+    <div class="trend-card">
+      <div class="trend-card-head"><div><h3>Current Alerts</h3><p>Conditions are refreshed automatically while the app is open.</p></div><button class="btn-light" id="refreshAlertsBtn" type="button">Refresh</button></div>
+      <div id="alertsList" class="alert-list"></div>
+    </div>
+    <div class="trend-card">
+      <div class="trend-card-head"><div><h3>Alert Settings</h3><p>Choose when the app should warn you about remaining 11kV supply allowance and phase current imbalance.</p></div></div>
+      <div class="alert-settings">
+        <div class="alert-setting"><label for="lowAllowanceThreshold">Low supply allowance warning</label><select id="lowAllowanceThreshold"><option value="30">30 minutes remaining</option><option value="60" selected>1 hour remaining</option><option value="120">2 hours remaining</option><option value="180">3 hours remaining</option><option value="300">5 hours remaining</option></select><small>Warns when an 11kV feeder is ON and its remaining allowance reaches this threshold.</small></div>
+        <div class="alert-setting"><label for="phaseImbalanceThreshold">Phase current imbalance threshold</label><select id="phaseImbalanceThreshold"><option value="10">10%</option><option value="15">15%</option><option value="20" selected>20%</option><option value="25">25%</option><option value="30">30%</option></select><small>Uses the latest hourly R, Y and B current readings for each feeder.</small></div>
+      </div>
+      <div class="alert-actions"><button class="btn-primary" id="saveAlertSettingsBtn" type="button">Save alert settings</button><button class="btn-light" id="enableBrowserAlertsBtn" type="button">Enable browser notifications</button></div>
+      <div class="muted" id="alertSettingsStatus" aria-live="polite" style="margin-top:8px">Alerts remain visible in this page while the app is open. Browser notifications depend on device and browser permission.</div>
+    </div>
+    <div class="trend-warning">These are advisory logbook alerts. They do not replace substation alarms, protection indications, switching instructions or approved operating procedures. The app cannot guarantee notifications while closed or running in the background.</div>
+  </section>
+  <section id="settingsPage" class="page-panel section" hidden>
+    <div class="section-head"><div><h2>Settings</h2><div class="muted">Configure the substation identity used throughout this logbook.</div></div></div>
+    <div class="trend-card">
+      <div class="trend-card-head"><div><h3>Substation Name</h3><p>This name is used on the dashboard and generated reports.</p></div></div>
+      <div class="report-meta-grid">
+        <label for="settingSubstationName">Full substation name<input id="settingSubstationName" type="text" value="Orogun Injection Substation" maxlength="100" autocomplete="organization"></label>
+      </div>
+      <p class="muted" style="margin-top:10px">Daily reports use the short form ending in “ISS”. Monthly reports use the same short form in uppercase.</p>
+      <div class="archive-actions" style="margin-top:14px"><button class="btn-primary" id="saveSubstationNameBtn" type="button">Save Substation Name</button></div>
+      <div class="muted" id="substationNameStatus" role="status" aria-live="polite" style="margin-top:9px">Current name: Orogun Injection Substation</div>
+    </div>
+    <div class="trend-card" style="margin-top:14px">
+      <div class="trend-card-head"><div><h3>11kV Feeder Configuration</h3><p>Choose one or two 11kV incomers, configure up to two outgoing feeders under each, and set each outgoing feeder's name and independent supply allowance.</p></div></div>
+      <div id="topologySettingsHost"></div>
+    </div>
+  </section>
+
+  <section id="backupPage" class="page-panel section" hidden>
+    <div class="load-toolbar">
+      <div><h2>Backup and Restore</h2><div class="muted">Protect your logbook records and move them to another device.</div></div>
+    </div>
+    <div class="backup-card">
+      <h3>Export a full backup</h3>
+      <p>Download one JSON file containing your feeder operations log, session start time, hourly load readings, and Consumption sheet entries.</p>
+      <button class="btn-primary" id="exportBackupBtn">Download backup</button>
+    </div>
+    <div class="backup-card">
+      <h3>Restore from a backup</h3>
+      <p>Select a backup JSON file created by this app. The file will be checked before any records are changed. Restoring replaces all current logbook records.</p>
+      <label class="backup-file-label" for="restoreBackupFile">Choose backup file</label>
+      <input id="restoreBackupFile" type="file" accept=".json,application/json">
+      <div class="muted" id="backupFileStatus" aria-live="polite">No backup file selected.</div>
+    </div>
+    <div class="backup-warning"><strong>Important:</strong> Restoring replaces the current logbook records. Before the restore, you can choose whether to download a safety backup of your current records. Backup files contain operational records and should be handled as confidential work data.</div>
+    <div class="muted" id="backupStatus" aria-live="polite" style="margin-top:12px">Backup and restore work offline on this device.</div>
+  </section>
+
+</main>
+
+<div class="modal-backdrop" id="modal">
+ <div class="modal">
+  <h3 id="modalTitle">Add manual record</h3>
+  <div class="field"><label for="mFeeder">Feeder</label><select id="mFeeder"></select></div>
+  <div class="field"><label for="mAction">Event</label><select id="mAction"><option value="ON">ON</option><option value="OFF">OFF</option></select></div>
+  <div class="field"><label for="mTime">Date and time (24-hour)</label><input id="mTime" type="datetime-local" step="60"></div>
+  <div class="note" id="modalNote">Manual events are inserted into the timeline and affect subsequent states, timers and calculations.</div>
+  <div class="modal-actions"><button class="btn-light" id="cancelModal">Cancel</button><button class="btn-primary" id="saveManual">Save record</button></div>
+ </div>
+</div>
+
+<div class="modal-backdrop" id="sessionModal">
+ <div class="modal">
+  <h3>Change session start time</h3>
+  <div class="field"><label for="sessionStartInput">Session start date and time (24-hour)</label><input id="sessionStartInput" type="datetime-local" step="60"></div>
+  <div class="note">Changing the session start time updates feeder ON/OFF availability and supply countdown calculations. Existing log entries remain unchanged.</div>
+  <div class="modal-actions"><button class="btn-light" id="cancelSessionModal">Cancel</button><button class="btn-primary" id="saveSessionStart">Save start time</button></div>
+ </div>
+</div>
+<script>
+(() => {
+'use strict';
+const KEY='bedc_injection_logbook_v1';
+const DEFAULT_FEEDER_NAMES={'33':'Abraka 33kV feeder','11a':'Orhoerha/Emonu feeder','11b':'Fed. Polytechnic feeder'};
+const FEEDER_NAMES_KEY='bedc_substation_feeder_names_v1';
+const FEEDER_ALLOWANCES_KEY='bedc_substation_feeder_allowances_v1';
+const TOPOLOGY_KEY='bedc_substation_feeder_topology_v1';
+const LEGACY_ALLOWANCES={'11a':5,'11b':16};
+const LEGACY_NAME_IDS=['11a','11b'];
+const SLOT_DEFS=[
+ {id:'11a',incomer:1,slot:1,legacyPrefix:'orho',defaultName:'Orhoerha/Emonu feeder',defaultAllowance:5},
+ {id:'11b',incomer:1,slot:2,legacyPrefix:'fed',defaultName:'Fed. Polytechnic feeder',defaultAllowance:16},
+ {id:'11c',incomer:2,slot:1,legacyPrefix:'out2a',defaultName:'11kV Feeder 3',defaultAllowance:5},
+ {id:'11d',incomer:2,slot:2,legacyPrefix:'out2b',defaultName:'11kV Feeder 4',defaultAllowance:5}
+];
+const LEGACY_LOAD_MAP={
+ '11a':{R:'orhoR',Y:'orhoY',B:'orhoB',energy:'orhoEnergy'},
+ '11b':{R:'fedR',Y:'fedY',B:'fedB',energy:'fedEnergy'},
+ '11c':{R:'out2aR',Y:'out2aY',B:'out2aB',energy:'out2aEnergy'},
+ '11d':{R:'out2bR',Y:'out2bY',B:'out2bB',energy:'out2bEnergy'}
+};
+function loadFeederNames(){const result={...DEFAULT_FEEDER_NAMES,...Object.fromEntries(SLOT_DEFS.map(d=>[d.id,d.defaultName]))};try{const v=JSON.parse(localStorage.getItem(FEEDER_NAMES_KEY)||'null');if(v&&typeof v==='object')for(const id of ['33','11a','11b','11c','11d'])if(typeof v[id]==='string'&&v[id].trim()&&v[id].length<=100)result[id]=v[id].trim();}catch(e){}return result;}
+function loadFeederAllowances(){const result={...LEGACY_ALLOWANCES,'11c':5,'11d':5};try{const v=JSON.parse(localStorage.getItem(FEEDER_ALLOWANCES_KEY)||'null');if(v&&typeof v==='object')for(const id of ['11a','11b','11c','11d']){const n=Number(v[id]);if(Number.isFinite(n)&&n>=0.25&&n<=744)result[id]=n;}}catch(e){}return result;}
+function defaultTopology(){return {incomerCount:1,incomers:[{id:'inc1',name:'11kV Incomer 1',outgoingCount:2},{id:'inc2',name:'11kV Incomer 2',outgoingCount:2}]};}
+function loadTopology(){
+ const base=defaultTopology();
+ try{
+  const v=JSON.parse(localStorage.getItem(TOPOLOGY_KEY)||'null');
+  if(!v||![1,2].includes(Number(v.incomerCount))||!Array.isArray(v.incomers))return base;
+  const result={incomerCount:Number(v.incomerCount),incomers:base.incomers.map((d,i)=>{const x=v.incomers.find(z=>z.id===d.id)||{};return {id:d.id,name:typeof x.name==='string'&&x.name.trim()?x.name.trim():d.name,outgoingCount:Number(x.outgoingCount)===1?1:2};})};
+  return result;
+ }catch(e){return base;}
+}
+let topology=loadTopology();
+let feederNames=loadFeederNames();
+let feederAllowances=loadFeederAllowances();
+function activeOutgoing(){return SLOT_DEFS.filter(d=>d.incomer<=topology.incomerCount&&d.slot<=topology.incomers[d.incomer-1].outgoingCount).map(d=>({...d,name:feederNames[d.id]||d.defaultName,allowance:Number(feederAllowances[d.id]??d.defaultAllowance)}));}
+function activeIncomers(){return topology.incomers.slice(0,topology.incomerCount);}
+function outgoingTableOrder(){return activeOutgoing().sort((a,b)=>a.incomer-b.incomer||(a.incomer===1?b.slot-a.slot:a.slot-b.slot));}
+function feederName(id){if(id==='33')return feederNames['33']||DEFAULT_FEEDER_NAMES['33'];const f=activeOutgoing().find(x=>x.id===id)||SLOT_DEFS.find(x=>x.id===id);return f?(feederNames[id]||f.defaultName):'Unknown feeder';}
+function feederEscape(value){return String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+function feederBaseName(id){return feederName(id).replace(/\s+feeder$/i,'').trim();}
+function feederBaseFromName(name){return String(name||'').replace(/\s+feeder$/i,'').trim();}
+function allOperationalFeeders(){return [{id:'33',name:feederName('33'),budget:null},...activeOutgoing().map(f=>({id:f.id,name:f.name,budget:f.allowance*3600000,incomer:f.incomer,slot:f.slot}))];}
+let FEEDERS=allOperationalFeeders();
+function refreshFeederModel(){FEEDERS=allOperationalFeeders();}
+function applyFeederNames(){
+ const fields={'33':'settingFeeder33Name'};
+ for(const d of SLOT_DEFS)fields[d.id]='settingName_'+d.id;
+ for(const [id,inputId] of Object.entries(fields)){const input=document.getElementById(inputId);if(input&&input.value!==feederName(id))input.value=feederName(id);}
+ const status=$('feederNamesStatus');if(status)status.textContent='Current active feeders: '+FEEDERS.map(f=>f.name).join(' | ');
+}
+function renameArchivedReportFeeders(oldNames,newNames){
+ const rows=readReportArchive().map(item=>{let title=String(item.title||''),body=String(item.body||'');for(const id of ['33','11a','11b','11c','11d']){const old=feederBaseFromName(oldNames[id]),replacement=feederBaseFromName(newNames[id]);if(old&&replacement&&old!==replacement){const pattern=new RegExp(old.replace(/[.*+?^${}()|[\\]\\]/g,'\\$&'),'gi');title=title.replace(pattern,replacement);body=body.replace(pattern,replacement);}}return {...item,title,body};});writeReportArchive(rows);
+}
+function fieldForOutgoing(id,phase){return LEGACY_LOAD_MAP[id]?.[phase]||'';}
+function loadFieldsForActiveTopology(){return ['incomer',...(topology.incomerCount===2?['incomer2']:[]),...activeOutgoing().flatMap(f=>Object.values(LEGACY_LOAD_MAP[f.id]))];}
+function syncFeederSelects(){
+ const options=[{id:'33',name:feederName('33')},...activeOutgoing().map(f=>({id:f.id,name:f.name}))];
+ for(const id of ['mFeeder','faultFeeder','faultFeederFilter']){const el=$(id);if(!el)continue;const old=el.value;el.innerHTML=(id==='faultFeederFilter'?'<option value="all">All feeders</option>':'')+options.map(x=>`<option value="${x.id}">${feederEscape(x.name)}</option>`).join('');if(options.some(x=>x.id===old))el.value=old;else el.value=id==='faultFeederFilter'?'all':'33';}
+}
+function renderTopologySettings(){
+ const host=$('topologySettingsHost');if(!host)return;
+ const incs=defaultTopology().incomers.map((baseInc,i)=>{const inc=topology.incomers.find(x=>x.id===baseInc.id)||baseInc;return `<div id="incomerConfig_${i+1}" class="trend-card" style="margin-top:12px" ${i+1>topology.incomerCount?'hidden':''}><div class="trend-card-head"><div><h3>11kV Incomer ${i+1}</h3><p>This name appears as an energy column in the Load table.</p></div></div><div class="report-meta-grid"><label>Incomer name<input id="settingIncName_${i+1}" maxlength="100" value="${feederEscape(inc.name)}"></label><label>Outgoing feeders under this incomer<select id="settingOutCount_${i+1}"><option value="1" ${inc.outgoingCount===1?'selected':''}>1 outgoing feeder</option><option value="2" ${inc.outgoingCount===2?'selected':''}>2 outgoing feeders</option></select></label></div>${SLOT_DEFS.filter(d=>d.incomer===i+1).map(d=>`<div class="report-meta-grid" style="margin-top:10px" id="settingSlot_${d.id}" ${d.slot>inc.outgoingCount?'hidden':''}><label>Outgoing feeder ${d.slot} name<input id="settingName_${d.id}" maxlength="100" value="${feederEscape(feederNames[d.id]||d.defaultName)}"></label><label>Supply allowance (hours)<input id="settingAllowance_${d.id}" type="number" min="0.25" max="744" step="0.25" value="${Number(feederAllowances[d.id]??d.defaultAllowance)}"></label></div>`).join('')}</div>`;}).join('');
+ host.innerHTML=`<div class="report-meta-grid"><label for="settingFeeder33Name">33kV supply feeder name<input id="settingFeeder33Name" maxlength="100" value="${feederEscape(feederNames['33']||DEFAULT_FEEDER_NAMES['33'])}"></label><label for="settingIncomerCount">Number of 11kV incomers<select id="settingIncomerCount"><option value="1" ${topology.incomerCount===1?'selected':''}>1 incomer</option><option value="2" ${topology.incomerCount===2?'selected':''}>2 incomers</option></select></label><div class="muted" style="align-self:end">One 33kV supply is retained. Each 11kV incomer can have up to two outgoing feeders. 11kV incomers appear only in the Load table; outgoing feeders appear on the Dashboard and reports.</div></div>${incs}<p class="muted" style="margin-top:12px">Each outgoing feeder has an independent ON-time allowance. When its allowance is exhausted, it switches OFF automatically and the event is logged. It remains locked until a new operational session. The 33kV supply has no time limit. Opening the 33kV supply automatically switches OFF every outgoing feeder that is ON. Reclosing the 33kV supply does not automatically reclose those feeders.</p><div class="archive-actions" style="margin-top:14px"><button class="btn-primary" id="saveTopologyBtn" type="button">Save Feeder Configuration</button></div><div class="muted" id="topologyStatus" role="status" aria-live="polite" style="margin-top:9px">Current configuration: ${topology.incomerCount} 11kV incomer(s), ${activeOutgoing().length} outgoing feeder(s).</div>`;
+ $('settingIncomerCount').onchange=()=>{const count=Number($('settingIncomerCount').value);const second=$('incomerConfig_2');if(second)second.hidden=count===1;};
+ for(let i=1;i<=2;i++){const sel=$('settingOutCount_'+i);if(sel)sel.onchange=()=>{for(const d of SLOT_DEFS.filter(x=>x.incomer===i)){const row=$('settingSlot_'+d.id);if(row)row.hidden=d.slot>Number(sel.value);}};}
+ $('saveTopologyBtn').onclick=saveTopologySettings;
+}
+function saveTopologySettings(){
+ const count=Number($('settingIncomerCount').value),next={incomerCount:count,incomers:defaultTopology().incomers.map((x)=>({...x,...(topology.incomers.find(y=>y.id===x.id)||{})}))},nextNames={...feederNames},nextAllowances={...feederAllowances};
+ const supplyName=$('settingFeeder33Name').value.trim();if(!supplyName||supplyName.length>100){$('topologyStatus').textContent='Enter a valid 33kV supply feeder name.';return;}nextNames['33']=supplyName;
+ for(let i=1;i<=count;i++){
+  const name=$('settingIncName_'+i)?.value.trim(),outCount=Number($('settingOutCount_'+i)?.value);
+  if(!name||name.length>100){$('topologyStatus').textContent=`Enter a valid name for 11kV Incomer ${i}.`;return;}
+  if(![1,2].includes(outCount)){$('topologyStatus').textContent=`Select one or two outgoing feeders for Incomer ${i}.`;return;}
+  next.incomers[i-1]={id:'inc'+i,name,outgoingCount:outCount};
+  for(const d of SLOT_DEFS.filter(x=>x.incomer===i&&x.slot<=outCount)){
+   const feeder=$('settingName_'+d.id)?.value.trim(),allowance=Number($('settingAllowance_'+d.id)?.value);
+   if(!feeder||feeder.length>100){$('topologyStatus').textContent=`Enter a valid name for outgoing feeder ${d.slot} under Incomer ${i}.`;return;}
+   if(!Number.isFinite(allowance)||allowance<0.25||allowance>744){$('topologyStatus').textContent=`Set ${feeder} allowance between 0.25 and 744 hours.`;return;}
+   nextNames[d.id]=feeder;nextAllowances[d.id]=allowance;
+  }
+ }
+ const oldActive=activeOutgoing().map(x=>x.id),newActive=SLOT_DEFS.filter(d=>d.incomer<=count&&d.slot<=next.incomers[d.incomer-1].outgoingCount).map(d=>d.id);
+ const removed=oldActive.filter(id=>!newActive.includes(id));
+ if(removed.some(id=>currentState().states[id])){alert('Switch OFF all outgoing feeders that will be removed from the configuration before saving. Their historical records will be preserved.');return;}
+ try{
+  const oldNames={...feederNames};
+  data.events.forEach(event=>{if(event.source==='automatic-exhaustion')event.source='automatic-exhaustion-lock';});
+  localStorage.setItem(TOPOLOGY_KEY,JSON.stringify(next));
+  localStorage.setItem(FEEDER_NAMES_KEY,JSON.stringify(nextNames));
+  localStorage.setItem(FEEDER_ALLOWANCES_KEY,JSON.stringify(nextAllowances));
+  topology=next;feederNames=nextNames;feederAllowances=nextAllowances;refreshFeederModel();
+  renameArchivedReportFeeders(oldNames,nextNames);applyFeederNames();syncFeederSelects();
+  normalizeTimeline();save();render();renderLoadRows();renderLoadTrends();renderConsumption();renderTopologySettings();
+  if($('dailyReportContent').textContent.trim())renderDailyReport();if($('monthlyReportContent').textContent.trim())renderMonthlyReport();
+  if(typeof renderFaultRegister==='function')renderFaultRegister();if(typeof renderOperationalAlerts==='function')renderOperationalAlerts();
+  $('topologyStatus').textContent=`Saved: ${count} 11kV incomer(s) and ${newActive.length} outgoing feeder(s). Existing operation and load records have been retained.`;
+ }catch(e){$('topologyStatus').textContent='Could not save feeder configuration: '+(e.message||'Check available browser storage.');}
+}
+
+let data, reportVisible=false, editingId=null;
+const $=id=>document.getElementById(id);
+const SUBSTATION_SETTINGS_KEY='bedc_substation_identity_v1';
+function loadSubstationName(){try{const v=JSON.parse(localStorage.getItem(SUBSTATION_SETTINGS_KEY)||'null');if(v&&typeof v.name==='string'&&v.name.trim())return v.name.trim();}catch(e){}return 'Orogun Injection Substation';}
+let substationName=loadSubstationName();
+function substationShortName(){let base=substationName.trim().replace(/\s+(?:injection\s+)?substation$/i,'').trim();return (base||substationName.trim())+' ISS';}
+function renameArchivedReportSubstation(oldFull,newFull){
+ const shortOf=value=>{const base=value.trim().replace(/\s+(?:injection\s+)?substation$/i,'').trim();return (base||value.trim())+' ISS';};
+ const oldShort=shortOf(oldFull),newShort=shortOf(newFull);
+ const rows=readReportArchive().map(item=>({...item,title:String(item.title||'').replaceAll(oldFull,newFull),body:String(item.body||'').replaceAll(oldFull,newFull).replaceAll(oldShort,newShort).replaceAll(oldShort.toUpperCase(),newShort.toUpperCase())}));
+ writeReportArchive(rows);
+}
+function applySubstationName(){
+ const full=$('dashboardSubstationName');if(full)full.textContent=substationName;
+ const pdf=$('pdfSubstationName');if(pdf)pdf.value=substationName;
+ const daily=$('dailyReportHeading');if(daily)daily.textContent=substationShortName()+' Daily Availability Report';
+ const monthly=$('monthlyReportHeading');if(monthly)monthly.textContent=(substationShortName()+' Monthly Availability Report').toUpperCase();
+ const input=$('settingSubstationName');if(input&&input.value!==substationName)input.value=substationName;
+ const status=$('substationNameStatus');if(status)status.textContent='Current name: '+substationName;
+}
+const now=()=>Date.now();
+const uid=()=>Math.random().toString(36).slice(2,10)+Date.now().toString(36);
+function fresh(){return {start:now(),events:[],created:now()};}
+let storageAvailable=true;
+function save(){
+  try{localStorage.setItem(KEY,JSON.stringify(data));storageAvailable=true;}
+  catch(e){storageAvailable=false;}
+}
+function load(){
+  try{const x=JSON.parse(localStorage.getItem(KEY));if(x&&Number.isFinite(x.start)&&Array.isArray(x.events))return x;}
+  catch(e){storageAvailable=false;}
+  return fresh();
+}
+function fmtDuration(ms){ms=Math.max(0,Math.floor(ms/60000)*60000);const h=Math.floor(ms/3600000),m=Math.floor(ms%3600000/60000);return `${h}hrs ${m}mins`;}
+function dateTime(ts){const d=new Date(ts);return d.toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'})+' '+d.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:false})+'.'+String(d.getMilliseconds()).padStart(3,'0');}
+function inputDate(ts){const d=new Date(ts);const pad=n=>String(n).padStart(2,'0');return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;}
+function sorted(){return [...data.events].sort((a,b)=>a.time-b.time||a.order-b.order);}
+function eventSourceLabel(source){
+ if(typeof source==='string'&&source.startsWith('automatic-exhaustion'))return 'Supply allowance exhausted';
+ if(source==='automatic-33kv-trip')return 'Automatic 33kV trip';
+ if(source==='manual')return 'Manual entry';
+ return 'Control panel';
+}
+function exportOperationsLogCsv(){
+ const rows=[['Date and Time','Feeder','Action','Event Source']];
+ for(const e of sorted()){
+  const feeder=FEEDERS.find(f=>f.id===e.feeder);
+  const source=eventSourceLabel(e.source);
+  rows.push([dateTime(e.time),feeder?feeder.name:feederName(e.feeder),e.action,source]);
+ }
+ const csv=rows.map(row=>row.map(value=>'"'+String(value??'').replace(/"/g,'""')+'"').join(',')).join('\r\n');
+ const blob=new Blob(['\ufeff',csv],{type:'text/csv;charset=utf-8;'});
+ const url=URL.createObjectURL(blob);
+ const link=document.createElement('a');
+ const stamp=new Date().toISOString().slice(0,10);
+ link.href=url;link.download='BEDC_Operations_Log_'+stamp+'.csv';
+ document.body.appendChild(link);link.click();link.remove();
+ setTimeout(()=>URL.revokeObjectURL(url),1000);
+}
+function replay(until=now()){
+ const ids=['11a','11b','11c','11d'];
+ const states={'33':false},used={},onSince={};
+ ids.forEach(id=>{states[id]=false;used[id]=0;onSince[id]=null;});
+ const totals={};['33',...ids].forEach(id=>totals[id]={on:0,off:0});
+ const last={'33':data.start,'11a':data.start,'11b':data.start,'11c':data.start,'11d':data.start};
+ const events=sorted().filter(e=>e.time<=until&&Object.prototype.hasOwnProperty.call(states,e.feeder));
+ function accrue(id,t){const duration=Math.max(0,t-last[id]);totals[id][states[id]?'on':'off']+=duration;if(states[id]&&id!=='33')used[id]+=duration;last[id]=t;}
+ for(const e of events){const t=Math.max(data.start,e.time);accrue(e.feeder,t);states[e.feeder]=e.action==='ON';}
+ ['33',...ids].forEach(id=>accrue(id,until));
+ return {states,used,totals,last};
+}
+function addEvent(feeder,action,time,source='manual'){
+ data.events.push({id:uid(),feeder,action,time,source,order:now()+Math.random()});data.events.sort((a,b)=>a.time-b.time||a.order-b.order);
+}
+function normalizeTimeline(){
+ data.events=data.events.filter(e=>!['automatic-exhaustion','automatic-33kv-trip','automatic-33kv-restore'].includes(e.source));
+ const ids=['11a','11b','11c','11d'];
+ let s33=false;const feederStates={};ids.forEach(id=>feederStates[id]=false);
+ const base=sorted();
+ for(const e of base){
+  if(e.feeder==='33'){
+   const was=s33;s33=e.action==='ON';
+   if(was&&!s33){let tripIndex=0;for(const id of ids){if(feederStates[id]){addEvent(id,'OFF',e.time+(tripIndex*5),'automatic-33kv-trip');tripIndex++;feederStates[id]=false;}}}
+  }else if(Object.prototype.hasOwnProperty.call(feederStates,e.feeder)){feederStates[e.feeder]=e.action==='ON';}
+ }
+ // Recalculate each outgoing feeder's allowance and generate its automatic OFF event.
+ for(const id of ids){
+  const def=SLOT_DEFS.find(x=>x.id===id),budget=Number(feederAllowances[id]??def.defaultAllowance)*3600000;
+  let state=false,used=0,last=data.start,exhaustedAt=null;
+  for(const e of sorted().filter(x=>x.feeder===id)){
+   const t=Math.max(data.start,e.time);
+   if(state){const interval=Math.max(0,t-last),remaining=budget-used;if(interval>=remaining){exhaustedAt=last+remaining;break;}used+=interval;}
+   state=e.action==='ON';last=t;
+  }
+  if(exhaustedAt===null&&state){const remaining=budget-used;if(remaining<=0)exhaustedAt=last;else if(last+remaining<=now())exhaustedAt=last+remaining;}
+  if(exhaustedAt!==null)addEvent(id,'OFF',exhaustedAt,'automatic-exhaustion');
+ }
+ data.events=data.events.filter(e=>{if(e.source!=='automatic-33kv-trip')return true;return !data.events.some(x=>x.feeder===e.feeder&&(x.source==='automatic-exhaustion'||x.source==='automatic-exhaustion-lock')&&(x.time<e.time||(x.time===e.time&&Number(x.order||0)<=Number(e.order||0))));});
+ data.events.sort((a,b)=>a.time-b.time||a.order-b.order);
+}
+
+function currentState(){return replay(now());}
+function exhausted(id){const f=FEEDERS.find(x=>x.id===id);return !!f&&f.budget!==null&&replay(now()).used[id]>=f.budget;}
+function remaining(id){const f=FEEDERS.find(x=>x.id===id);return !f||f.budget===null?Infinity:Math.max(0,f.budget-replay(now()).used[id]);}
+function switchFeeder(id,action){
+ const r=currentState();
+ if(action==='ON'){
+  if(r.states[id])return;
+  if(id!=='33'&&!r.states['33']){alert('The '+feederName('33')+' must be ON before an 11kV outgoing feeder can be switched ON.');return;}
+  if(id!=='33'&&exhausted(id)){alert('The supply-hour allowance for this feeder has been exhausted. Start a new operational session before switching it ON again.');return;}
+  addEvent(id,'ON',now(),'control');
+ }else{
+  if(!r.states[id])return;
+  addEvent(id,'OFF',now(),'control');
+  if(id==='33'){
+   const after=currentState();
+   activeOutgoing().forEach(f=>{if(after.states[f.id])addEvent(f.id,'OFF',now(),'automatic-33kv-trip');});
+  }
+ }
+ normalizeTimeline();save();render();
+}
+function feederCard(f,r){
+ const on=r.states[f.id],used=r.used[f.id]||0,rem=f.budget===null?null:Math.max(0,f.budget-used);
+ const progress=f.budget===null?100:Math.max(0,Math.min(100,rem/f.budget*100));
+ const timer=f.budget===null?'No time limit':fmtDuration(rem);
+ const lock=f.budget!==null&&rem<=0;
+ return `<article class="card">
+ <h2>${feederEscape(f.name)}</h2><div class="sub">${f.id==='33'?'33kV incomer':'11kV outgoing feeder'}</div>
+ <div class="status"><span class="lamp ${on?'on':''}"></span><b>${on?'ON · Supply available':'OFF · No supply'}</b>${lock?'<span class="tag off">Allowance exhausted</span>':''}</div>
+ <div class="control"><button class="btn-on" data-switch="${f.id}:ON" ${on||lock||(f.id!=='33'&&!r.states['33'])?'disabled':''}>ON</button><button class="btn-off" data-switch="${f.id}:OFF" ${!on?'disabled':''}>OFF</button></div>
+ ${f.budget===null?`<div class="metrics"><div class="metric"><small>Session ON time</small><strong>${fmtDuration(r.totals[f.id].on)}</strong></div><div class="metric"><small>Session OFF time</small><strong>${fmtDuration(r.totals[f.id].off)}</strong></div></div>`:
+ `<div class="timer-card"><div class="donut" style="--progress:${progress}%"><div><strong>${fmtDuration(rem).replace('hrs ','h ').replace('mins','m')}</strong><small>REMAINING</small></div></div><div class="timer-info"><strong>${f.budget/3600000} hour supply allowance</strong><p>${lock?'Allowance exhausted. Reset required.':on?'Countdown running while feeder is ON.':'Countdown paused while feeder is OFF.'}</p><p>Used: ${fmtDuration(used)}</p></div></div>`}
+ </article>`;
+}
+function render(){
+ const r=currentState();
+ if(typeof renderDashboard==='function')renderDashboard();
+ $('feederCards').innerHTML=FEEDERS.map(f=>feederCard(f,r)).join('');
+ document.querySelectorAll('[data-switch]').forEach(b=>b.addEventListener('click',()=>{const [id,a]=b.dataset.switch.split(':');switchFeeder(id,a);}));
+ $('sessionInfo').textContent='Session started: '+dateTime(data.start)+(storageAvailable?'':' · Storage unavailable in this browser view');
+ $('clock').textContent='Current time: '+new Date().toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:false})+' (24-hour)';
+ const list=sorted();
+ $('logList').innerHTML=list.length?list.map(e=>{
+   const f=FEEDERS.find(x=>x.id===e.feeder),label=e.action==='ON'?'on':'off';
+   const source=eventSourceLabel(e.source);
+   return `<div class="log-item"><div class="log-time">${dateTime(e.time)}</div><div class="log-message">${dateTime(e.time).split(' ').slice(-1)[0]} ${feederEscape(f?f.name:feederName(e.feeder))} ${label}<span class="tag ${label}">${source}</span></div><div class="log-actions"><button class="btn-light" data-edit="${e.id}">Edit</button><button class="btn-light" data-delete="${e.id}">Delete</button></div></div>`;
+ }).join(''):'<div class="empty">No feeder events recorded yet. Switch a feeder ON or OFF to begin the log.</div>';
+ document.querySelectorAll('[data-edit]').forEach(b=>b.addEventListener('click',()=>openModal(b.dataset.edit)));
+ document.querySelectorAll('[data-delete]').forEach(b=>b.addEventListener('click',()=>deleteEvent(b.dataset.delete)));
+ if(reportVisible)renderReport();
+}
+function renderReport(){
+ const r=currentState();
+ $('reports').innerHTML='<div class="report-grid">'+FEEDERS.map(f=>`<div class="report"><h3>${feederEscape(f.name)}</h3><div class="report-row"><span>Total ON time</span><b>${fmtDuration(r.totals[f.id].on)}</b></div><div class="report-row"><span>Total OFF time</span><b>${fmtDuration(r.totals[f.id].off)}</b></div><div class="report-total"><span>Monitored time</span><span>${fmtDuration(r.totals[f.id].on+r.totals[f.id].off)}</span></div></div>`).join('')+'</div>';
+}
+function openModal(id=null){
+ editingId=id;
+ $('modalTitle').textContent=id?'Edit log record':'Add manual record';
+ $('modalNote').textContent=id?'Change the event timestamp, feeder or action. The event will be repositioned chronologically and calculations will be updated.':'Manual events are inserted into the timeline and affect subsequent states, timers and calculations.';
+ if(id){const e=data.events.find(x=>x.id===id);if(!$('mFeeder').querySelector(`option[value="${e.feeder}"]`))$('mFeeder').insertAdjacentHTML('beforeend',`<option value="${e.feeder}">${feederEscape(feederName(e.feeder))} (inactive)</option>`);$('mFeeder').value=e.feeder;$('mAction').value=e.action;$('mTime').value=inputDate(e.time);}
+ else{$('mFeeder').value='33';$('mAction').value='ON';$('mTime').value=inputDate(now());}
+ $('modal').classList.add('show');
+}
+function closeModal(){$('modal').classList.remove('show');editingId=null;}
+function saveManual(){
+ const feeder=$('mFeeder').value,action=$('mAction').value,time=new Date($('mTime').value).getTime();
+ if(!Number.isFinite(time)||!$('mTime').value){alert('Enter a valid date and time.');return;}
+ if(time<data.start){alert('The event cannot be earlier than the current session start.');return;}
+ if(time>now()+60000){alert('Future event times are not allowed.');return;}
+ if(editingId){const e=data.events.find(x=>x.id===editingId);if(e){e.feeder=feeder;e.action=action;e.time=time;e.source='manual';}}
+ else addEvent(feeder,action,time,'manual');
+ normalizeTimeline();save();closeModal();reportVisible=false;$('reports').innerHTML='<div class="empty">Press “Calculate availability” to generate the report.</div>';render();
+}
+function deleteEvent(id){if(!confirm('Delete this log record? Related feeder states and calculations will be recalculated.'))return;data.events=data.events.filter(e=>e.id!==id);normalizeTimeline();save();reportVisible=false;$('reports').innerHTML='<div class="empty">Press “Calculate availability” to generate the report.</div>';render();}
+
+$('editSessionBtn').onclick=()=>{
+  $('sessionStartInput').value=inputDate(data.start);
+  $('sessionModal').classList.add('show');
+};
+$('cancelSessionModal').onclick=()=>$('sessionModal').classList.remove('show');
+$('sessionModal').addEventListener('click',e=>{if(e.target===$('sessionModal'))$('sessionModal').classList.remove('show');});
+$('saveSessionStart').onclick=()=>{
+  const value=$('sessionStartInput').value;
+  const nextStart=new Date(value).getTime();
+  if(!value||!Number.isFinite(nextStart)){alert('Enter a valid session start date and time.');return;}
+  if(nextStart>now()){alert('Session start time cannot be in the future.');return;}
+  const firstEvent=sorted()[0];
+  if(firstEvent&&nextStart>firstEvent.time){alert('Session start time cannot be later than the earliest recorded feeder event.');return;}
+  data.start=nextStart;
+  normalizeTimeline();
+  save();
+  $('sessionModal').classList.remove('show');
+  render();
+};
+
+$('manualBtn').onclick=()=>openModal();$('manualBtn2').onclick=()=>openModal();
+$('cancelModal').onclick=closeModal;$('saveManual').onclick=saveManual;
+$('modal').addEventListener('click',e=>{if(e.target===$('modal'))closeModal();});
+$('calcBtn').onclick=()=>{reportVisible=true;renderReport();};
+$('clearCalcBtn').onclick=()=>{reportVisible=false;$('reports').innerHTML='<div class="empty">Press “Calculate availability” to generate the report.</div>';};
+$('resetBtn').onclick=()=>{
+ if(!confirm('Reset the entire monitoring session? This permanently clears all feeder logs, availability calculations and countdown usage on this device.'))return;
+ data=fresh();reportVisible=false;save();$('reports').innerHTML='<div class="empty">Press “Calculate availability” to generate the report.</div>';render();
+};
+window.addEventListener('error',e=>{
+  const msg=document.createElement('div');
+  msg.style.cssText='margin:12px 0;padding:12px;background:#fee2e2;color:#991b1b;border-radius:9px;font-size:13px';
+  msg.textContent='App error: '+(e.message||'An unexpected error occurred')+'. Reload the file in Chrome. ';
+  document.querySelector('main').prepend(msg);
+});
+// Load page: independent persistent hourly readings (01:00 through 00:00).
+const LOAD_KEY='bedc_injection_load_records_v1';
+const LOAD_FIELD_POOL=['incomer','incomer2','fedR','fedY','fedB','fedEnergy','orhoR','orhoY','orhoB','orhoEnergy','out2aR','out2aY','out2aB','out2aEnergy','out2bR','out2bY','out2bB','out2bEnergy'];
+let loadData={};
+function loadReadings(){try{const v=JSON.parse(localStorage.getItem(LOAD_KEY)||'{}');return v&&typeof v==='object'&&!Array.isArray(v)?v:{};}catch(e){return {};}}
+function saveReadings(){try{localStorage.setItem(LOAD_KEY,JSON.stringify(loadData));$('loadSaveStatus').textContent='Saved automatically on this device.';}catch(e){$('loadSaveStatus').textContent='Could not save. Check available browser storage.';}}
+function activeLoadColumns(){
+ const cols=[];
+ activeIncomers().forEach((inc,i)=>{
+  cols.push({field:i===0?'incomer':'incomer2',label:inc.name+' Energy (MWh)',cls:'energy-in'});
+  outgoingTableOrder().filter(f=>f.incomer===i+1).forEach(f=>{const m=LEGACY_LOAD_MAP[f.id];['R','Y','B','energy'].forEach((phase)=>cols.push({field:m[phase],label:phase==='energy'?f.name+' Energy (MWh)':f.name+' '+phase+'(A)',cls:f.incomer===1?'fed':'orho'}));});
+ });
+ return cols;
+}
+function renderLoadRows(){
+ const cols=activeLoadColumns();
+ $('loadHead').innerHTML='<tr><th class="time-head">Time</th>'+cols.map(c=>`<th>${feederEscape(c.label)}</th>`).join('')+'</tr>';
+ const times=Array.from({length:24},(_,i)=>String((i+1)%24).padStart(2,'0')+':00');
+ $('loadRows').innerHTML=times.map((time,i)=>{const key=String(i).padStart(2,'0'),vals=loadData[key]||{};return `<tr><th scope="row">${time}</th>${cols.map(c=>{const estimated=!!(vals._estimated&&vals._estimated[c.field]);return `<td class="${c.cls}"><input class="${estimated?'estimated-reading':''}" type="number" inputmode="decimal" step="any" data-load-time="${key}" data-load-field="${c.field}" aria-label="${time} ${feederEscape(c.label)}${estimated?' estimated':''}" title="${estimated?'Estimated reading. Replace with the actual meter reading when available.':''}" value="${vals[c.field]??''}">${estimated?'<span class="estimate-mark" aria-hidden="true">*</span>':''}</td>`;}).join('')}</tr>`;}).join('');
+ document.querySelectorAll('[data-load-field]').forEach(input=>input.addEventListener('input',()=>{const t=input.dataset.loadTime,f=input.dataset.loadField;if(!loadData[t])loadData[t]={};if(input.value==='')delete loadData[t][f];else loadData[t][f]=input.value;if(loadData[t]._estimated)delete loadData[t]._estimated[f];if(loadData[t]._estimated&&Object.keys(loadData[t]._estimated).length===0)delete loadData[t]._estimated;if(Object.keys(loadData[t]).length===0)delete loadData[t];saveReadings();renderDashboard();if($('trendsPage')&&!$('trendsPage').hidden)renderLoadTrends();if($('dailyReportBox').classList.contains('show'))renderDailyReport();}));
+}
+function generateMissingReadings(){
+ const fields=activeLoadColumns().map(c=>c.field);
+ const rows=Array.from({length:24},(_,i)=>loadData[String(i).padStart(2,'0')]||{});
+ const plans=[];
+ fields.forEach(field=>{
+  const known=[];
+  rows.forEach((row,index)=>{
+   const raw=row[field];
+   if(raw!==undefined&&raw!==null&&String(raw).trim()!==''&&Number.isFinite(Number(raw)))known.push({index,value:Number(raw)});
+  });
+  if(!known.length)return;
+  rows.forEach((row,index)=>{
+   const raw=row[field];
+   if(raw!==undefined&&raw!==null&&String(raw).trim()!=='')return;
+   let estimate;
+   const before=[...known].reverse().find(point=>point.index<index);
+   const after=known.find(point=>point.index>index);
+   if(before&&after){
+    const fraction=(index-before.index)/(after.index-before.index);
+    estimate=before.value+(after.value-before.value)*fraction;
+   }else if(known.length>=2&&index<known[0].index){
+    const first=known[0],second=known[1];
+    const slope=(second.value-first.value)/(second.index-first.index);
+    estimate=first.value+slope*(index-first.index);
+   }else if(known.length>=2&&index>known[known.length-1].index){
+    const last=known[known.length-1],previous=known[known.length-2];
+    const slope=(last.value-previous.value)/(last.index-previous.index);
+    estimate=last.value+slope*(index-last.index);
+   }else{
+    // One actual reading cannot establish a defensible trend.
+    return;
+   }
+   // Current and energy readings cannot be negative.
+   estimate=Math.max(0,estimate);
+   plans.push({index,field,value:Number(estimate.toFixed(3))});
+  });
+ });
+ if(!plans.length){
+  alert('No missing readings could be estimated. Each column needs at least two actual readings to estimate values at the beginning or end of the day. Existing readings were not changed.');
+  return;
+ }
+ const count=plans.length;
+ if(!confirm(`Generate ${count} estimated reading${count===1?'':'s'} in empty cells?\n\nMissing values between actual readings will use linear interpolation. Values before the first actual reading and after the last actual reading will use the trend from the nearest two actual readings. If a column has only one actual reading, its other empty cells will remain blank.\n\nExisting readings will not be changed. Generated values will be marked with an asterisk.`))return;
+ plans.forEach(plan=>{
+  const key=String(plan.index).padStart(2,'0');
+  if(!loadData[key])loadData[key]={};
+  loadData[key][plan.field]=String(plan.value);
+  if(!loadData[key]._estimated)loadData[key]._estimated={};
+  loadData[key]._estimated[plan.field]=true;
+ });
+ saveReadings();
+ renderLoadRows();
+ renderDashboard();
+ if($('trendsPage')&&!$('trendsPage').hidden)renderLoadTrends();
+ if($('dailyReportBox').classList.contains('show'))renderDailyReport();
+ alert(`${count} estimated reading${count===1?'':'s'} generated. They are marked with an asterisk. Replace them with actual readings when available.`);
+}
+$('generateMissingReadingsBtn').addEventListener('click',generateMissingReadings);
+
+function numericReading(row,field){const value=Number(row?.[field]??0);return Number.isFinite(value)&&value>0?value:0;}
+
+function trendRows(){
+ return Array.from({length:24},(_,i)=>({key:String(i).padStart(2,'0'),time:String((i+1)%24).padStart(2,'0')+':00',values:loadData[String(i).padStart(2,'0')]||{}}));
+}
+function trendNum(v){const n=Number(v);return Number.isFinite(n)?n:0;}
+function trendHas(v){return v!==undefined&&v!==null&&String(v).trim()!==''&&Number.isFinite(Number(v));}
+function trendFmt(v,d=1){return Number(v).toLocaleString('en-NG',{maximumFractionDigits:d,minimumFractionDigits:0});}
+function trendSeriesChart(targetId,series,unit){
+ const rows=trendRows();
+ const values=series.flatMap(s=>rows.map(r=>trendHas(r.values[s.field])?trendNum(r.values[s.field]):null).filter(v=>v!==null));
+ if(!values.length){$(targetId).innerHTML='<div class="trend-empty">No readings entered yet.<br>Enter hourly values in the Load section to display this chart.</div>';return;}
+ const max=Math.max(...values,1),min=Math.min(0,...values),w=760,h=220,left=48,right=14,top=13,bottom=34,plotW=w-left-right,plotH=h-top-bottom;
+ const x=i=>left+(i/23)*plotW,y=v=>top+plotH-((v-min)/(max-min||1))*plotH;
+ let grid='';
+ for(let j=0;j<=4;j++){const val=min+(max-min)*j/4,yy=y(val);grid+=`<line x1="${left}" y1="${yy}" x2="${w-right}" y2="${yy}" stroke="#e8eef2" stroke-width="1"/><text x="${left-8}" y="${yy+3}" text-anchor="end">${trendFmt(val)}</text>`;}
+ const labels=[0,4,8,12,16,20,23].map(i=>`<text x="${x(i)}" y="${h-10}" text-anchor="middle">${rows[i].time.slice(0,2)}</text>`).join('');
+ let lines='';
+ series.forEach(s=>{
+  const pts=rows.map((r,i)=>trendHas(r.values[s.field])?`${x(i)},${y(trendNum(r.values[s.field]))}`:null);
+  let segment=[];
+  const paths=[];
+  pts.forEach(pt=>{if(pt)segment.push(pt);else if(segment.length){paths.push(segment.join(' '));segment=[];}});
+  if(segment.length)paths.push(segment.join(' '));
+  lines+=paths.map(d=>`<polyline points="${d}" fill="none" stroke="${s.color}" stroke-width="2.7" stroke-linecap="round" stroke-linejoin="round"/>`).join('');
+  rows.forEach((r,i)=>{if(trendHas(r.values[s.field]))lines+=`<circle cx="${x(i)}" cy="${y(trendNum(r.values[s.field]))}" r="3.1" fill="${s.color}"><title>${s.label} · ${r.time}: ${trendFmt(trendNum(r.values[s.field]))} ${unit}</title></circle>`;});
+ });
+ $(targetId).innerHTML=`<svg viewBox="0 0 ${w} ${h}" role="img" aria-label="Hourly ${unit} trend chart">${grid}${labels}${lines}</svg>`;
+}
+function feederTrendStats(fields){
+ const values=trendRows().flatMap(r=>fields.filter(f=>trendHas(r.values[f])).map(f=>({value:trendNum(r.values[f]),time:r.time,phase:f.endsWith('R')?'R':f.endsWith('Y')?'Y':'B'})));
+ if(!values.length)return {peak:null,min:null,avg:null,count:0};
+ const positive=values.filter(x=>x.value>0),peak=values.reduce((a,b)=>b.value>=a.value?b:a);
+ return {peak,min:positive.length?positive.reduce((a,b)=>b.value<a.value?b:a):null,avg:values.length?values.reduce((s,x)=>s+x.value,0)/values.length:null,count:values.length};
+}
+function imbalanceStats(fields){
+ const eligible=trendRows().map(r=>{
+  const vals=fields.map(f=>r.values[f]);
+  if(!vals.every(trendHas))return null;
+  const nums=vals.map(trendNum);if(nums.some(v=>v<=0))return null;
+  const avg=nums.reduce((a,b)=>a+b,0)/3;
+  return {time:r.time,pct:(Math.max(...nums)-avg)/avg*100};
+ }).filter(Boolean);
+ return eligible.length?{max:eligible.reduce((a,b)=>b.pct>=a.pct?b:a),avg:eligible.reduce((s,x)=>s+x.pct,0)/eligible.length,count:eligible.length}:null;
+}
+function renderStats(targetId,stats){
+ const items=[
+  ['Peak current',stats.peak?`${trendFmt(stats.peak.value)} A`:'Nil'],
+  ['Peak phase / time',stats.peak?`${stats.peak.phase} · ${stats.peak.time}`:'Nil'],
+  ['Minimum positive',stats.min?`${trendFmt(stats.min.value)} A`:'Nil'],
+  ['Average entered',stats.avg!==null?`${trendFmt(stats.avg)} A`:'Nil'],
+  ['Readings entered',String(stats.count)]
+ ];
+ $(targetId).innerHTML=items.map(([k,v])=>`<div class="trend-stat"><span>${k}</span><strong>${v}</strong></div>`).join('');
+}
+function renderBalance(targetId,stats){
+ const items=stats?[
+  ['Highest imbalance',`${trendFmt(stats.max.pct)}%`],
+  ['Time of highest',stats.max.time],
+  ['Average imbalance',`${trendFmt(stats.avg)}%`],
+  ['Hours assessed',String(stats.count)]
+ ]:[['Highest imbalance','Nil'],['Time of highest','Nil'],['Average imbalance','Nil'],['Hours assessed','0']];
+ $(targetId).innerHTML=items.map(([k,v])=>`<div class="trend-stat"><span>${k}</span><strong>${v}</strong></div>`).join('');
+}
+function renderLoadTrends(){
+ const host=$('trendsPage');if(!host)return;
+ const outgoing=activeOutgoing();
+ const summary=outgoing.map(f=>{const m=LEGACY_LOAD_MAP[f.id],stats=feederTrendStats([m.R,m.Y,m.B]);return [f.name+' peak',stats.peak?trendFmt(stats.peak.value)+' A':'Nil',stats.peak?stats.peak.time+' · '+stats.peak.phase+' phase':'No current data'];});
+ const incomers=activeIncomers();
+ const incomerSeries=incomers.map((inc,i)=>({field:i===0?'incomer':'incomer2',label:inc.name,color:i===0?'#1D4ED8':'#E11D48'}));
+ const outgoingColors=['#0F766E','#8B5CF6','#EA580C','#475569'];
+ const outgoingSeries=outgoing.map((f,i)=>({field:LEGACY_LOAD_MAP[f.id].energy,label:f.name,color:outgoingColors[i]}));
+ const energySeries=[...incomerSeries,...outgoingSeries];
+ const energyFields=energySeries.map(x=>x.field);
+ const energyValues=trendRows().flatMap(r=>energyFields.filter(f=>trendHas(r.values[f])).map(f=>trendNum(r.values[f]))),maxEnergy=energyValues.length?Math.max(...energyValues):null;
+ summary.push(['Highest energy entry',maxEnergy!==null?trendFmt(maxEnergy)+' MWh':'Nil','Across configured outgoing feeder energy columns'],['Hours with load data',String(trendRows().filter(r=>Object.values(r.values).some(trendHas)).length),'Out of 24 hourly slots']);
+ host.innerHTML=`<div class="trends-intro"><h2>Load Trend Analysis</h2><p>Review hourly phase currents and energy readings for the configured 11kV incomers and outgoing feeders.</p></div><div class="load-toolbar"><div><h2>Current and Energy Overview</h2><div class="muted">Calculated from the hourly readings currently saved in this logbook.</div></div><button class="btn-light" id="refreshTrendsBtn">Refresh analysis</button></div><div class="trend-summary-grid" id="trendSummary">${summary.map(x=>`<div class="trend-kpi"><span>${feederEscape(x[0])}</span><strong>${x[1]}</strong><small>${x[2]}</small></div>`).join('')}</div><div class="trend-card"><div class="trend-card-head"><div><h3>Hourly Energy Readings</h3><p>Energy readings for configured incomers and outgoing feeders.</p></div></div><div class="trend-legend" id="trendEnergyLegend"></div><div class="trend-chart" id="trendEnergy"></div></div>${outgoing.map((f,i)=>{const m=LEGACY_LOAD_MAP[f.id];return `<div class="trend-card"><div class="trend-card-head"><div><h3>${feederEscape(f.name)} Phase Currents</h3><p>Hourly R, Y and B phase current readings in amperes.</p></div></div><div class="trend-legend"><span><i style="background:#dc5353"></i>R phase</span><span><i style="background:#d6a12e"></i>Y phase</span><span><i style="background:#347bb5"></i>B phase</span></div><div class="trend-chart" id="trendCurrent_${f.id}"></div><div class="trend-stat-list" id="trendStats_${f.id}"></div><div class="trend-stat-list" id="trendBalance_${f.id}"></div></div>`;}).join('')}<div class="trend-warning">Phase imbalance is the percentage deviation of the highest phase current from the three-phase average. It is calculated for hours with all three phase readings present and above zero. This is an indicative calculation, not a protection relay setting or power-quality assessment. Investigate persistent high imbalance using approved site procedures and instruments.</div><div class="trend-warning">Analysis uses only the current hourly Load Record. The app does not store dated daily load history, so comparisons across previous days or months are not included.</div>`;
+ $('refreshTrendsBtn').onclick=renderLoadTrends;
+ $('trendEnergyLegend').innerHTML=energySeries.map(x=>`<span><i style="background:${x.color}"></i>${feederEscape(x.label)}</span>`).join('');
+ trendSeriesChart('trendEnergy',energySeries,'MWh');
+ outgoing.forEach(f=>{const m=LEGACY_LOAD_MAP[f.id],fields=[m.R,m.Y,m.B],stats=feederTrendStats(fields),bal=imbalanceStats(fields);trendSeriesChart('trendCurrent_'+f.id,[{field:m.R,label:'R phase',color:'#dc5353'},{field:m.Y,label:'Y phase',color:'#d6a12e'},{field:m.B,label:'B phase',color:'#347bb5'}],'A');renderStats('trendStats_'+f.id,stats);renderBalance('trendBalance_'+f.id,bal);});
+}
+
+function nilIfZero(value,formatter=v=>String(v)){return value===0?'Nil':formatter(value);}
+function previousDayDate(){const d=new Date();d.setDate(d.getDate()-1);return `${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')}/${d.getFullYear()}`;}
+function feederLoadSummary(prefix,fields,energyField,onTime){
+ const rows=Array.from({length:24},(_,i)=>({time:String((i+1)%24).padStart(2,'0'),values:loadData[String(i).padStart(2,'0')]||{}}));
+ let maxLoad=0,maxLoadTime='';
+ let totalLoad=0;
+ for(const row of rows){
+   const currents=fields.map(field=>numericReading(row.values,field));
+   const hourlyMax=Math.max(...currents);
+   totalLoad+=hourlyMax;
+   if(hourlyMax>=maxLoad&&hourlyMax>0){maxLoad=hourlyMax;maxLoadTime=row.time+':00';}
+ }
+ const lastEnergyRow=[...rows].reverse().find(row=>row.values[energyField]!==undefined&&row.values[energyField]!==null&&String(row.values[energyField]).trim()!=='');
+ const lastEnergy=lastEnergyRow?numericReading(lastEnergyRow.values,energyField):0;
+ const energyText=nilIfZero(lastEnergy,v=>String(lastEnergyRow.values[energyField]));
+ const maxLoadText=nilIfZero(maxLoad,v=>String(v));
+ const maxTimeText=maxLoad>0?maxLoadTime:'Nil';
+ const totalText=nilIfZero(totalLoad,v=>String(v));
+ const mwText=totalLoad===0?'Nil':(totalLoad/60).toFixed(1);
+ return `*${prefix} Feeder*\nAvailability = ${onTime===0?'Nil':fmtDuration(onTime)}\nEnergy = ${energyText}MWh\nMax Load @${maxTimeText}hrs = ${maxLoadText}A\nTotal Load = ${totalText}A\nMegawatts = ${mwText}MW`;
+}
+
+function latestLoadValue(field){
+ const rows=Array.from({length:24},(_,i)=>({time:String((i+1)%24).padStart(2,'0'),values:loadData[String(i).padStart(2,'0')]||{}}));
+ const row=[...rows].reverse().find(x=>x.values[field]!==undefined&&x.values[field]!==null&&String(x.values[field]).trim()!=='');
+ return row?{value:row.values[field],time:row.time+':00'}:null;
+}
+function peakPhase(fields){
+ const rows=Array.from({length:24},(_,i)=>({time:String((i+1)%24).padStart(2,'0'),values:loadData[String(i).padStart(2,'0')]||{}}));
+ let best=0,at='Nil',phase='Nil';
+ for(const row of rows){
+  fields.forEach(field=>{
+   const value=numericReading(row.values,field);
+   if(value>=best&&value>0){best=value;at=row.time+':00';phase=field.endsWith('R')?'R':field.endsWith('Y')?'Y':'B';}
+  });
+ }
+ return best>0?{value:best,time:at,phase}:null;
+}
+function dashboardEnergy(field){
+ const latest=latestLoadValue(field);
+ if(!latest)return 'Nil';
+ const value=Number(latest.value);
+ return Number.isFinite(value)&&value!==0?`${latest.value} MWh`:'Nil';
+}
+function renderDashboard(){
+ const r=currentState(),alertCount=typeof collectOperationalAlerts==='function'?collectOperationalAlerts().length:0;
+ const existingBanner=$('dashboardAlertBanner');if(existingBanner){existingBanner.innerHTML=alertCount?`<strong>${alertCount} active operational alert${alertCount===1?'':'s'}</strong><button type="button" class="btn-light" id="dashboardViewAlerts">Review alerts</button>`:'<strong>No active operational alerts</strong>';existingBanner.style.display='flex';const b=$('dashboardViewAlerts');if(b)b.onclick=()=>showPage('alerts');}
+ const status=id=>r.states[id]?'ON':'OFF';
+ $('dashboardOverview').innerHTML=`<article class="dashboard-card"><h3>${feederEscape(feederBaseName('33'))} Supply</h3><div class="dashboard-status"><span class="dashboard-dot ${r.states['33']?'on':''}"></span>${status('33')}</div><div class="dashboard-meta">${r.states['33']?'Incoming supply available':'Incoming supply unavailable'} · No time limit</div></article>`+activeOutgoing().map(f=>`<article class="dashboard-card"><h3>${feederEscape(f.name)}</h3><div class="dashboard-status"><span class="dashboard-dot ${r.states[f.id]?'on':''}"></span>${status(f.id)}</div><div class="dashboard-meta">${fmtDuration(remaining(f.id))} supply allowance remaining</div></article>`).join('');
+ $('dashboardAvailability').innerHTML=FEEDERS.map(f=>`<article class="dashboard-feeder"><h3>${feederEscape(f.name)}</h3><div class="dashboard-stat"><span>Session ON time</span><strong>${fmtDuration(r.totals[f.id].on)}</strong></div><div class="dashboard-stat"><span>Session OFF time</span><strong>${fmtDuration(r.totals[f.id].off)}</strong></div><div class="dashboard-stat"><span>Current status</span><strong>${status(f.id)}</strong></div></article>`).join('');
+ $('dashboardLoad').innerHTML=activeOutgoing().map(f=>{const m=LEGACY_LOAD_MAP[f.id],peak=peakPhase([m.R,m.Y,m.B]),energy=latestLoadValue(m.energy);return `<article class="dashboard-feeder"><h3>${feederEscape(f.name)}</h3><div class="dashboard-stat"><span>Latest energy</span><strong>${dashboardEnergy(m.energy)}</strong></div><div class="dashboard-stat"><span>Peak phase current</span><strong>${peak?peak.value+' A ('+peak.phase+')':'Nil'}</strong></div><div class="dashboard-stat"><span>Peak reading time</span><strong>${peak?peak.time:'Nil'}</strong></div><div class="dashboard-stat"><span>Latest energy time</span><strong>${energy?energy.time:'Nil'}</strong></div></article>`;}).join('');
+ $('dashboardUpdated').textContent='Updated '+new Date().toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:false})+' · Current monitoring session';
+}
+
+function printAvailabilityReport(kind){
+ const isDaily=kind==='daily';
+ const contentId=isDaily?'dailyReportContent':'monthlyReportContent';
+ const content=$(contentId);
+ if(!content||!content.textContent.trim()){
+  alert('Generate the '+(isDaily?'daily':'monthly')+' report before printing.');
+  return;
+ }
+ const raw=content.textContent.trim();
+ const substation=$('pdfSubstationName').value.trim()||'Orogun Injection Substation';
+ const prepared=$('pdfPreparedBy').value.trim()||'Not specified';
+ const checked=$('pdfCheckedBy').value.trim()||'Not specified';
+ const reference=$('pdfReportReference').value.trim()||'Not specified';
+ const lines=raw.split(/\r?\n/);
+ const reportTitle=isDaily?'DAILY AVAILABILITY REPORT':'MONTHLY AVAILABILITY REPORT';
+ const safe=v=>String(v).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+ const body=lines.map(line=>{
+  const t=line.trim();
+  if(!t)return '<div class="gap"></div>';
+  const clean=t.replace(/\*/g,'');
+  if(/ISS (Daily|Monthly) Availability Report/i.test(clean))return `<h2>${safe(clean)}</h2>`;
+  if(/FEEDER|INCOMER/i.test(clean)&&!/^.*Availability Report/i.test(clean))return `<h3>${safe(clean)}</h3>`;
+  return `<p>${safe(clean)}</p>`;
+ }).join('');
+ const doc=`<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>BEDC ${reportTitle}</title><style>
+ @page{size:A4;margin:18mm}*{box-sizing:border-box}body{font-family:Arial,Helvetica,sans-serif;color:#1e2c36;margin:0;font-size:11pt;line-height:1.55}
+ .brand{border-bottom:3px solid #1e6674;padding-bottom:12px;margin-bottom:22px}.brandline{font-size:9pt;letter-spacing:2px;font-weight:700;color:#4e6573}.brand h1{font-size:21pt;margin:7px 0 2px;color:#18394d}.brand p{margin:0;color:#607381;font-size:10pt}
+ .meta{display:grid;grid-template-columns:1fr 1fr;gap:8px 18px;margin:0 0 22px;padding:12px;background:#f2f6f8;border:1px solid #d9e3e8;border-radius:8px;font-size:9pt}.meta strong{color:#294d61}
+ h2{font-size:15pt;color:#18394d;margin:0 0 15px}h3{font-size:11pt;color:#1d6570;margin:15px 0 5px;padding-bottom:4px;border-bottom:1px solid #dce5e9}p{margin:3px 0 3px 8px}.gap{height:7px}
+ .signatures{display:grid;grid-template-columns:1fr 1fr;gap:35px;margin-top:55px}.sign{border-top:1px solid #536775;padding-top:7px;font-size:9pt;color:#536775}
+ .footer{margin-top:35px;border-top:1px solid #dce5e9;padding-top:8px;color:#71818b;font-size:8pt}
+ @media print{body{-webkit-print-color-adjust:exact;print-color-adjust:exact}}
+ </style><link rel="apple-touch-icon" href="./icon-192.png">
+</head><body>
+ <header class="brand"><div class="brandline">BEDC ELECTRICITY PLC · OPERATIONS</div><h1>Injection Substation Logbook</h1><p>${safe(substation)}</p></header>
+ <section class="meta"><div><strong>Report type:</strong> ${reportTitle}</div><div><strong>Generated:</strong> ${safe(new Date().toLocaleString('en-GB'))}</div><div><strong>Prepared by:</strong> ${safe(prepared)}</div><div><strong>Checked by:</strong> ${safe(checked)}</div><div><strong>Reference:</strong> ${safe(reference)}</div><div><strong>Substation:</strong> ${safe(substation)}</div></section>
+ <main>${body}</main><div class="signatures"><div class="sign">Prepared by / Signature / Date</div><div class="sign">Checked by / Signature / Date</div></div>
+ <div class="footer">BEDC Substation Logbook · Operational report · Handle as confidential work data</div>
+ <script>window.addEventListener('load',()=>{setTimeout(()=>window.print(),350)});<\/script></body></html>`;
+ const win=window.open('','_blank');
+ if(!win){alert('The browser blocked the print window. Allow pop-ups for this app, then try again.');return;}
+ win.document.open();win.document.write(doc);win.document.close();
+}
+$('printDailyReportBtn').onclick=()=>printAvailabilityReport('daily');
+$('printMonthlyReportBtn').onclick=()=>printAvailabilityReport('monthly');
+
+function renderDailyReport(){
+ const r=currentState();
+ const sections=outgoingTableOrder().map(f=>{const m=LEGACY_LOAD_MAP[f.id];return feederLoadSummary(feederBaseName(f.id),[m.R,m.Y,m.B],m.energy,r.totals[f.id].on);});
+ const abrakaOn=r.totals['33'].on;
+ const incomerEnergyLines=activeIncomers().map((inc,i)=>{
+  const field=i===0?'incomer':'incomer2';
+  const latest=latestLoadValue(field);
+  const value=latest&&String(latest.value).trim()!==''?`${latest.value}MWh`:'Nil';
+  return topology.incomerCount===1?`Incomer Energy = ${value}`:`${inc.name} Energy = ${value}`;
+ }).join('\n');
+ const report=`*${substationShortName()} Daily Availability Report on*\n*${previousDayDate()}*\n\n${sections.join('\n\n')}\n\n*${feederName('33')}*\nAvailability = ${abrakaOn===0?'Nil':fmtDuration(abrakaOn)}\n${incomerEnergyLines}`;
+ $('dailyReportContent').textContent=report;$('dailyReportBox').classList.add('show');
+}
+
+async function copyDailyReport(){
+ const text=$('dailyReportContent').textContent;
+ const button=$('copyDailyReportBtn');
+ let copied=false;
+ // Try the modern clipboard API first. Some Android browsers expose it but
+ // reject the write, so continue to the selection-based fallback if it fails.
+ if(navigator.clipboard&&typeof navigator.clipboard.writeText==='function'){
+  try{await navigator.clipboard.writeText(text);copied=true;}catch(e){}
+ }
+ if(!copied){
+  const area=document.createElement('textarea');
+  area.value=text;area.setAttribute('readonly','');
+  area.style.position='fixed';area.style.top='0';area.style.left='0';
+  area.style.width='2px';area.style.height='2px';area.style.padding='0';
+  area.style.border='0';area.style.outline='0';area.style.boxShadow='none';
+  area.style.background='transparent';area.style.fontSize='16px';area.style.opacity='0.01';
+  document.body.appendChild(area);
+  try{
+   area.focus({preventScroll:true});area.select();area.setSelectionRange(0,area.value.length);
+   copied=document.execCommand('copy');
+  }catch(e){copied=false;}
+  area.remove();
+ }
+ if(copied){
+  const oldText=button.textContent;button.textContent='Copied';
+  setTimeout(()=>button.textContent=oldText,1600);
+ }else{
+  const report=$('dailyReportContent');
+  const selection=window.getSelection();const range=document.createRange();
+  range.selectNodeContents(report);selection.removeAllRanges();selection.addRange(range);
+  alert('Automatic copying is unavailable in this browser. The report text is selected. Tap Copy from the text selection menu.');
+ }
+}
+$('exportLogCsvBtn').onclick=exportOperationsLogCsv;
+$('dailyReportBtn').onclick=renderDailyReport;
+$('copyDailyReportBtn').onclick=copyDailyReport;
+
+// Manual operational-day rollover. The new session always starts at 00:00
+// local device time, while the rollover itself can be performed later.
+function localMidnightTimestamp(value=new Date()){
+ const d=new Date(value);d.setHours(0,0,0,0);return d.getTime();
+}
+function localDateKey(value=new Date()){
+ const d=new Date(value);
+ return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+}
+async function startNewOperationalDay(){
+ const todayKey=localDateKey();
+ if(data.lastRolloverDate===todayKey){
+  alert('A new operational day has already been started today. No records were changed.');return;
+ }
+ const midnight=localMidnightTimestamp();
+ const displayDate=new Date(data.start).toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'});
+ if(!confirm(`Start a new operational day for ${new Date(midnight).toLocaleDateString('en-GB')}?\n\nA full backup of the current session will be downloaded first. After that, the daily report will be archived and the feeder session and hourly load table will be cleared.\n\nOutage records, equipment inspections, historical reports and monthly consumption data will be preserved.`))return;
+
+ const oldData=JSON.parse(JSON.stringify(data));
+ const oldLoad=JSON.parse(JSON.stringify(loadData));
+ const oldArchive=localStorage.getItem(ARCHIVE_KEY);
+ try{
+  // Build the report from the current session before changing any records.
+  renderDailyReport();
+  let reportText=$('dailyReportContent').textContent;
+  reportText=reportText.replace(/(Report on\*\n\*)\d{2}\/\d{2}\/\d{4}/,`$1${new Date(data.start).toLocaleDateString('en-GB',{day:'2-digit',month:'2-digit',year:'numeric'})}`);
+  const reportTitle=`Daily Availability Report · ${displayDate}`;
+  saveReportToArchive('daily',reportTitle,reportText);
+
+  // Download a complete backup, including the just-archived daily report,
+  // before clearing any current-session records.
+  downloadBackup('_Before_New_Day');
+  if(!confirm('The backup download has been started. Check that the JSON backup file has been saved before continuing.\n\nChoose OK to clear the current feeder session and hourly load readings. Choose Cancel to keep the current records.')) {
+   if(oldArchive===null)localStorage.removeItem(ARCHIVE_KEY);else localStorage.setItem(ARCHIVE_KEY,oldArchive);
+   return;
+  }
+
+  const freshStart=midnight;
+  data={start:freshStart,events:[],created:Date.now(),lastRolloverDate:todayKey};
+  loadData={};
+  save();
+  if(!storageAvailable)throw new Error('The feeder session could not be saved to device storage.');
+  saveReadings();
+  if(!localStorage.getItem(LOAD_KEY)||JSON.parse(localStorage.getItem(LOAD_KEY)||'null')===null)throw new Error('The hourly load table could not be saved.');
+  reportVisible=false;
+  $('reports').innerHTML='<div class="empty">Press “Calculate availability” to generate the report.</div>';
+  render();
+  renderLoadRows();
+  renderDashboard();
+  if(typeof renderLoadTrends==='function')renderLoadTrends();
+  $('dailyReportBox').classList.remove('show');
+  alert('New operational day started. The session backup was downloaded, the previous daily report is saved in Historical Archive, and the new session start time is 00:00.');
+ }catch(error){
+  data=oldData;loadData=oldLoad;
+  try{localStorage.setItem(KEY,JSON.stringify(oldData));localStorage.setItem(LOAD_KEY,JSON.stringify(oldLoad));if(oldArchive===null)localStorage.removeItem(ARCHIVE_KEY);else localStorage.setItem(ARCHIVE_KEY,oldArchive);}catch(rollbackError){}
+  render();renderLoadRows();
+  alert('The new day could not be started. Existing records have been restored. Details: '+error.message);
+ }
+}
+$('startNewDayBtn').addEventListener('click',startNewOperationalDay);
+function showPage(which){const pages=['dashboard','log','load','trends','archive','faults','equipment','alerts','consumption','backup','settings'];for(const name of pages){const active=name===which;$(name+'Page').hidden=!active;$(name+'Tab').classList.toggle('active',active);$(name+'Tab').setAttribute('aria-selected',String(active));}const pdfDetails=$('pdfReportDetails');if(pdfDetails)pdfDetails.hidden=!(which==='load'||which==='consumption');if(which==='trends'&&typeof renderLoadTrends==='function')renderLoadTrends();if(which==='archive'&&typeof renderArchive==='function')renderArchive();if(which==='faults'&&typeof renderFaultRegister==='function')renderFaultRegister();if(which==='equipment'&&typeof renderEquipmentRegister==='function')renderEquipmentRegister();if(which==='alerts'&&typeof renderOperationalAlerts==='function')renderOperationalAlerts();}
+$('dashboardTab').onclick=()=>showPage('dashboard');
+$('settingsTab').onclick=()=>showPage('settings');
+$('dashboardOpenLog').onclick=()=>showPage('log');
+$('dashboardOpenLoad').onclick=()=>showPage('load');
+$('trendsTab').onclick=()=>showPage('trends');
+$('archiveTab').onclick=()=>showPage('archive');
+$('faultsTab').onclick=()=>showPage('faults');
+$('equipmentTab').onclick=()=>showPage('equipment');
+$('alertsTab').onclick=()=>showPage('alerts');
+$('dashboardDailyReport').onclick=()=>{showPage('load');renderDailyReport();};
+$('logTab').onclick=()=>showPage('log');$('loadTab').onclick=()=>showPage('load');$('consumptionTab').onclick=()=>showPage('consumption');$('backupTab').onclick=()=>showPage('backup');
+$('saveSubstationNameBtn').onclick=()=>{const value=$('settingSubstationName').value.trim();if(!value){$('substationNameStatus').textContent='Enter a substation name before saving.';return;}if(value.length>100){$('substationNameStatus').textContent='The substation name must not exceed 100 characters.';return;}try{const previousName=substationName;localStorage.setItem(SUBSTATION_SETTINGS_KEY,JSON.stringify({name:value}));if(previousName!==value)renameArchivedReportSubstation(previousName,value);substationName=value;applySubstationName();$('substationNameStatus').textContent='Substation name saved successfully.';if($('dailyReportContent').textContent.trim())renderDailyReport();if($('monthlyReportContent').textContent.trim())renderMonthlyReport();}catch(e){$('substationNameStatus').textContent='Could not save the substation name. Check available browser storage.';}};
+$('clearLoadBtn').onclick=()=>{if(!confirm('Clear all hourly feeder load readings? This cannot be undone.'))return;loadData={};saveReadings();renderLoadRows();renderLoadTrends();};
+$('refreshTrendsBtn').onclick=renderLoadTrends;
+loadData=loadReadings();renderLoadRows();
+
+// Consumption sheet: persistent editable daily durations and monthly energy values.
+const CONSUMPTION_KEY='bedc_injection_consumption_records_v1';
+const SAMPLE_CONSUMPTION={
+ durations:[
+ ['11:00:00','0:00:00','0:00:00'],['12:21:00','11:23:00','7:10:00'],['7:30:00','6:15:00','2:00:00'],['0:00:00','0:00:00','0:00:00'],['0:00:00','0:00:00','0:00:00'],['5:52:00','0:00:00','0:00:00'],['0:00:00','0:00:00','0:00:00'],['3:00:00','0:00:00','0:00:00'],['0:00:00','0:00:00','0:00:00'],['4:00:00','0:00:00','0:00:00'],['0:00:00','0:00:00','0:00:00'],['0:00:00','0:00:00','0:00:00'],['6:18:00','3:10:00','0:00:00'],['16:00:00','13:35:00','7:09:00'],['13:00:00','10:00:00','6:00:00'],['8:00:00','7:30:00','5:00:00'],['7:00:00','6:00:00','4:00:00'],['6:00:00','5:45:00','4:00:00'],['0:00:00','0:00:00','0:00:00'],['0:00:00','0:00:00','0:00:00'],['0:00:00','0:00:00','0:00:00'],['0:00:00','0:00:00','0:00:00'],['0:00:00','0:00:00','0:00:00'],['9:50:00','9:50:00','5:00:00'],['15:01:00','12:16:00','2:00:00'],['10:44:00','9:09:00','3:44:00'],['20:43:00','15:35:00','3:04:00'],['11:43:00','8:49:00','11:43:00'],['23:41:00','15:54:00','4:47:00'],['5:16:00','5:05:00','3:34:00'],['3:27:00','3:27:00','3:27:00']
+ ],previous:[96,54,42],present:[130,68,63]
+};
+let consumptionData;
+const CONS_COL_IDS=['33','11b','11a','11c','11d'];
+function cloneSample(){const x=JSON.parse(JSON.stringify(SAMPLE_CONSUMPTION));x.durations=x.durations.map(r=>[...r,'','']);x.previous=[...x.previous,'',''];x.present=[...x.present,'',''];return x;}
+function loadConsumption(){try{const raw=localStorage.getItem(CONSUMPTION_KEY);if(raw){const parsed=JSON.parse(raw);if(parsed&&Array.isArray(parsed.durations)&&parsed.durations.length===31){parsed.durations=parsed.durations.map(r=>[...(r||[]),'','',''].slice(0,5));parsed.previous=[...(parsed.previous||[]),'',''].slice(0,5);parsed.present=[...(parsed.present||[]),'',''].slice(0,5);return parsed;}}}catch(e){}return cloneSample();}
+function saveConsumption(){try{localStorage.setItem(CONSUMPTION_KEY,JSON.stringify(consumptionData));$('consumptionSaveStatus').textContent='Saved automatically on this device.';}catch(e){$('consumptionSaveStatus').textContent='Could not save. Check available browser storage.';}}
+function durationSeconds(value){if(value===null||value===undefined||String(value).trim()==='')return null;const text=String(value).trim();let match=text.match(/^(\d+):(\d{1,2})$/);if(match){const h=Number(match[1]),m=Number(match[2]);if(m>59)return null;return h*3600+m*60;}match=text.match(/^(\d+):(\d{1,2}):(\d{1,2})$/);if(!match)return null;const h=Number(match[1]),m=Number(match[2]),sec=Number(match[3]);if(m>59||sec>59)return null;return h*3600+m*60+sec;}
+function normalizeDurationEntry(value){if(value===null||value===undefined||String(value).trim()==='')return '';const seconds=durationSeconds(value);if(seconds===null)return String(value).trim();const totalMinutes=Math.floor(seconds/60),h=Math.floor(totalMinutes/60),m=totalMinutes%60;return `${h}:${String(m).padStart(2,'0')}`;}
+function durationText(total){const rounded=Math.round(total),h=Math.floor(rounded/3600),m=Math.floor(rounded%3600/60),sec=rounded%60;return `${h}:${String(m).padStart(2,'0')}:${String(sec).padStart(2,'0')}`;}
+function activeConsumptionCols(){return [{id:'33',label:feederName('33')+' Availability',col:0},...outgoingTableOrder().map(f=>({id:f.id,label:f.name+' Availability',col:CONS_COL_IDS.indexOf(f.id)}))];}
+function renderConsumption(){
+ const cols=activeConsumptionCols(),letters=cols.map((_,i)=>String.fromCharCode(66+i));
+ $('consumptionColgroup').innerHTML='<col style="width:48px"><col style="width:185px">'+cols.map(()=>'<col>').join('');
+ $('consumptionHead').innerHTML=`<tr class="letters"><th></th><th></th>${letters.map(x=>`<th>${x}</th>`).join('')}</tr><tr class="sheet-head"><th class="rownum">1</th><th class="col-a">S/N</th>${cols.map(c=>{const label=String(c.label);const feeder=label.replace(/\s+Availability$/i,'');return `<th class="data-cell"><span class="consumption-feeder-name">${feederEscape(feeder)}</span><span class="consumption-availability-label">Availability</span></th>`;}).join('')}</tr>`;
+ const labels=Array.from({length:31},(_,i)=>String(i+1));labels.push('Total Availability (Hrs)','Average Availability (Hrs)','Previous (MWh)','Present (MWh)','Consumption (MWh)');
+ const body=labels.map((label,row)=>{const sheetRow=row+2;if(row<31)return `<tr><th class="rownum">${sheetRow}</th><th class="col-a">${label}</th>${cols.map(c=>`<td class="data-cell"><input type="text" inputmode="text" autocomplete="off" spellcheck="false" aria-label="${c.label} day ${label}" data-cons-row="${row}" data-cons-col="${c.col}" value="${normalizeDurationEntry(consumptionData.durations[row]?.[c.col]??'').replace(/&/g,'&amp;').replace(/"/g,'&quot;')}"></td>`).join('')}</tr>`;const calc=row-31;if(calc===0||calc===1)return `<tr><th class="rownum">${sheetRow}</th><th class="col-a">${label}</th>${cols.map(c=>`<td class="calc-cell data-cell" id="consCalc${calc}_${c.col}"></td>`).join('')}</tr>`;const er=calc-2,values=er===0?consumptionData.previous:er===1?consumptionData.present:null;if(values)return `<tr><th class="rownum">${sheetRow}</th><th class="col-a">${label}</th>${cols.map(c=>`<td class="energy-cell data-cell"><input type="number" inputmode="decimal" step="any" aria-label="${c.label} ${label}" data-energy-row="${er}" data-energy-col="${c.col}" value="${values[c.col]??''}"></td>`).join('')}</tr>`;return `<tr><th class="rownum">${sheetRow}</th><th class="col-a">${label}</th>${cols.map(c=>`<td class="calc-cell data-cell" id="consCalc2_${c.col}"></td>`).join('')}</tr>`;}).join('');
+ $('consumptionRows').innerHTML=body;
+ document.querySelectorAll('[data-cons-row]').forEach(input=>input.addEventListener('change',()=>{const r=Number(input.dataset.consRow),c=Number(input.dataset.consCol),v=input.value.trim();if(v!==''&&durationSeconds(v)===null){input.setCustomValidity('Enter duration as H:MM, for example 7:30. Minutes must be between 00 and 59.');input.reportValidity();return;}input.setCustomValidity('');const normalized=normalizeDurationEntry(v);input.value=normalized;consumptionData.durations[r][c]=normalized;saveConsumption();updateConsumptionCalcs();autoFitConsumptionColumns();}));
+ document.querySelectorAll('[data-energy-row]').forEach(input=>input.addEventListener('input',()=>{const r=Number(input.dataset.energyRow),c=Number(input.dataset.energyCol);consumptionData[r===0?'previous':'present'][c]=input.value===''?'':Number(input.value);saveConsumption();updateConsumptionCalcs();autoFitConsumptionColumns();}));updateConsumptionCalcs();autoFitConsumptionColumns();
+}
+function autoFitConsumptionColumns(){
+ const table=$('consumptionHead')?.closest('table'),group=$('consumptionColgroup');
+ if(!table||!group)return;
+ const cols=activeConsumptionCols(),canvas=document.createElement('canvas'),ctx=canvas.getContext('2d');
+ if(!ctx)return;
+ const font=getComputedStyle(table).font||'13px Arial';
+ ctx.font=font;
+ const measure=value=>ctx.measureText(String(value??'')).width;
+ const pad=20,minWidth=82;
+ const labels=['S/N','Total Availability (Hrs)','Average Availability (Hrs)','Previous (MWh)','Present (MWh)','Consumption (MWh)'];
+ const labelWidth=Math.max(...labels.map(measure))+18;
+ const widths=cols.map(c=>{
+  const feeder=String(c.label).replace(/\\s+Availability$/i,'');
+  const headerWidth=Math.max(measure(feeder),measure('Availability'));
+  const durations=consumptionData.durations.map(row=>row?.[c.col]??'');
+  const energy=[consumptionData.previous[c.col],consumptionData.present[c.col]];
+  const calculated=[$('consCalc0_'+c.col)?.textContent,$('consCalc1_'+c.col)?.textContent,$('consCalc2_'+c.col)?.textContent];
+  const contentWidth=Math.max(0,...durations.concat(energy,calculated).filter(v=>v!==null&&v!==undefined&&String(v)!=='').map(measure));
+  return Math.ceil(Math.max(minWidth,headerWidth,contentWidth)+pad);
+ });
+ group.innerHTML='<col style="width:48px"><col style="width:'+Math.ceil(labelWidth)+'px">'+widths.map(w=>'<col style="width:'+w+'px">').join('');
+ const dataCells=table.querySelectorAll('.data-cell');
+ dataCells.forEach(cell=>{cell.style.width='';cell.style.minWidth='';cell.style.maxWidth='';});
+}
+function updateConsumptionCalcs(){for(const c of activeConsumptionCols()){const col=c.col,vals=consumptionData.durations.map(row=>durationSeconds(row?.[col])).filter(v=>v!==null),total=vals.reduce((a,b)=>a+b,0),avg=vals.length?total/vals.length:null;$('consCalc0_'+col).textContent=durationText(total);$('consCalc1_'+col).textContent=avg===null?'Nil':durationText(avg);const prev=Number(consumptionData.previous[col]||0),present=Number(consumptionData.present[col]||0);$('consCalc2_'+col).textContent=consumptionData.previous[col]===''||consumptionData.present[col]===''?'Nil':String(present-prev);}}
+consumptionData=loadConsumption();renderConsumption();
+
+// Full-device backup and validated restore.
+let backupRestoreReloadPending=false;
+const BACKUP_VERSION=1;
+function backupTimestamp(){const d=new Date();const pad=n=>String(n).padStart(2,'0');return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}_${pad(d.getHours())}-${pad(d.getMinutes())}-${pad(d.getSeconds())}`;}
+function buildBackup(){
+ return {format:'BEDC_SUBSTATION_LOGBOOK_BACKUP',version:BACKUP_VERSION,createdAt:new Date().toISOString(),appVersion:'9',records:{operations:JSON.parse(JSON.stringify(data)),load:JSON.parse(JSON.stringify(loadData)),consumption:JSON.parse(JSON.stringify(consumptionData)),archive:readReportArchive(),outages:JSON.parse(JSON.stringify(faultRecords)),equipment:JSON.parse(JSON.stringify(equipmentRecords)),alertSettings:JSON.parse(JSON.stringify(alertSettings)),substationName,feederNames:JSON.parse(JSON.stringify(feederNames)),feederAllowances:JSON.parse(JSON.stringify(feederAllowances)),topology:JSON.parse(JSON.stringify(topology))}};
+}
+function downloadBackup(suffix=''){
+ const backup=buildBackup();
+ const blob=new Blob([JSON.stringify(backup,null,2)],{type:'application/json'});
+ const url=URL.createObjectURL(blob);const a=document.createElement('a');
+ a.href=url;a.download=`BEDC_Substation_Logbook_Backup_${backupTimestamp()}${suffix}.json`;
+ document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1500);
+ return backup;
+}
+function validateBackup(b){
+ if(!b||typeof b!=='object'||b.format!=='BEDC_SUBSTATION_LOGBOOK_BACKUP'||b.version!==BACKUP_VERSION||!b.records||typeof b.records!=='object')throw new Error('This is not a supported BEDC Substation Logbook backup file.');
+ const op=b.records.operations,ld=b.records.load,cd=b.records.consumption,ar=b.records.archive===undefined?[]:b.records.archive,fo=b.records.outages===undefined?[]:b.records.outages,eq=b.records.equipment===undefined?[]:b.records.equipment,as=b.records.alertSettings===undefined?{lowAllowanceMinutes:60,phaseImbalancePercent:20}:b.records.alertSettings;
+ if(b.records.substationName!==undefined&&(typeof b.records.substationName!=='string'||!b.records.substationName.trim()||b.records.substationName.length>100))throw new Error('The substation name setting is invalid.');
+ if(b.records.feederNames!==undefined&&(!b.records.feederNames||typeof b.records.feederNames!=='object'||Array.isArray(b.records.feederNames)||Object.entries(b.records.feederNames).some(([id,name])=>!['33','11a','11b','11c','11d'].includes(id)||typeof name!=='string'||!name.trim()||name.length>100)))throw new Error('The feeder names setting is invalid.');
+ if(b.records.feederAllowances!==undefined&&(!b.records.feederAllowances||typeof b.records.feederAllowances!=='object'||Array.isArray(b.records.feederAllowances)||Object.entries(b.records.feederAllowances).some(([id,v])=>!['11a','11b','11c','11d'].includes(id)||!Number.isFinite(Number(v))||Number(v)<0.25||Number(v)>744)))throw new Error('The feeder supply allowances setting is invalid.');
+ if(b.records.topology!==undefined&&(!b.records.topology||![1,2].includes(Number(b.records.topology.incomerCount))||!Array.isArray(b.records.topology.incomers)))throw new Error('The feeder configuration setting is invalid.');
+ if(!Array.isArray(ar)||ar.some(x=>!x||typeof x!=='object'||typeof x.id!=='string'||!['daily','monthly'].includes(x.type)||typeof x.title!=='string'||typeof x.body!=='string'||typeof x.createdAt!=='string'))throw new Error('The report archive section is invalid.');
+ if(!Array.isArray(fo)||fo.some(x=>!x||typeof x!=='object'||typeof x.id!=='string'||!['33','11a','11b','11c','11d'].includes(x.feeder)||typeof x.cause!=='string'||!Number.isFinite(x.startAt)||!(x.restoredAt===null||Number.isFinite(x.restoredAt))||typeof x.description!=='string'||typeof x.action!=='string'))throw new Error('The outage/fault register section is invalid.');
+ if(!Array.isArray(eq)||eq.some(x=>!x||typeof x!=='object'||typeof x.id!=='string'||typeof x.category!=='string'||typeof x.name!=='string'||!Number.isFinite(x.inspectedAt)||!['normal','attention','defect'].includes(x.condition)||!['open','closed','monitor'].includes(x.status)||typeof x.observations!=='string'))throw new Error('The equipment inspection section is invalid.');
+ if(!as||typeof as!=='object'||![30,60,120,180,300].includes(Number(as.lowAllowanceMinutes))||![10,15,20,25,30].includes(Number(as.phaseImbalancePercent)))throw new Error('The alert settings section is invalid.');
+ 
+ if(!op||typeof op!=='object'||!Number.isFinite(op.start)||!Array.isArray(op.events))throw new Error('The operations log section is missing or invalid.');
+ const feederIds=['33','11a','11b','11c','11d'];
+ for(const e of op.events){if(!e||typeof e!=='object'||!feederIds.includes(e.feeder)||!['ON','OFF'].includes(e.action)||!Number.isFinite(e.time)||typeof e.id!=='string'||!e.id)throw new Error('The operations log contains an invalid event.');}
+ if(!ld||typeof ld!=='object'||Array.isArray(ld))throw new Error('The hourly load records section is missing or invalid.');
+ for(const [hour,row] of Object.entries(ld)){if(!/^\d{2}$/.test(hour)||Number(hour)>23||!row||typeof row!=='object'||Array.isArray(row))throw new Error('The hourly load records contain an invalid row.');for(const [field,value] of Object.entries(row)){if(field==='_estimated'){if(!value||typeof value!=='object'||Array.isArray(value)||Object.entries(value).some(([k,v])=>!LOAD_FIELD_POOL.includes(k)||v!==true))throw new Error('The hourly load estimate markers are invalid.');continue;}if(!LOAD_FIELD_POOL.includes(field)||!(typeof value==='string'||typeof value==='number')||(typeof value==='number'&&!Number.isFinite(value)))throw new Error('The hourly load records contain an invalid reading.');}}
+ if(!cd||typeof cd!=='object'||!Array.isArray(cd.durations)||cd.durations.length!==31||!Array.isArray(cd.previous)||![3,5].includes(cd.previous.length)||!Array.isArray(cd.present)||![3,5].includes(cd.present.length))throw new Error('The Consumption sheet section is missing or invalid.');
+ for(const row of cd.durations){if(!Array.isArray(row)||![3,5].includes(row.length)||row.some(v=>typeof v!=='string'))throw new Error('The Consumption sheet contains an invalid duration row.');}
+ for(const arr of [cd.previous,cd.present])if(arr.some(v=>!(typeof v==='string'||typeof v==='number')||(typeof v==='number'&&!Number.isFinite(v))))throw new Error('The Consumption sheet contains an invalid energy reading.');
+ return true;
+}
+$('exportBackupBtn').onclick=()=>{try{downloadBackup();$('backupStatus').textContent='Full backup downloaded successfully.';}catch(e){$('backupStatus').textContent='Backup failed: '+e.message;}};
+$('restoreBackupFile').addEventListener('change',async event=>{
+ const file=event.target.files&&event.target.files[0];
+ if(!file){$('backupFileStatus').textContent='No backup file selected.';return;}
+ $('backupFileStatus').textContent='Selected: '+file.name;
+ try{
+  if(file.size>10*1024*1024)throw new Error('The selected file is larger than the 10 MB limit.');
+  const parsed=JSON.parse(await file.text());
+  validateBackup(parsed);
+  const op=parsed.records.operations,ld=parsed.records.load,cd=parsed.records.consumption;
+  const archive=Array.isArray(parsed.records.archive)?parsed.records.archive:[];
+  const outages=Array.isArray(parsed.records.outages)?parsed.records.outages:[];
+  const equipment=Array.isArray(parsed.records.equipment)?parsed.records.equipment:[];
+  const restoredAlertSettings=parsed.records.alertSettings||{lowAllowanceMinutes:60,phaseImbalancePercent:20};
+  const summary=`Backup date: ${new Date(parsed.createdAt).toLocaleString()}
+Operations events: ${op.events.length}
+Hourly load rows: ${Object.keys(ld).length}
+Consumption duration rows: ${cd.durations.length}
+Archived reports: ${archive.length}
+
+Restoring will REPLACE the current logbook records with the selected backup. Continue?`;
+  if(!confirm(summary)){
+   event.target.value='';
+   $('backupStatus').textContent='Restore cancelled. Your current records were not changed.';
+   return;
+  }
+
+  // The user decides whether to download a safety copy. Cancel here means
+  // skip the safety download and continue with the restore.
+  const makeSafetyBackup=confirm('Would you like to download a safety backup of your CURRENT records before restoring?\\n\\nOK = Download safety backup\\nCancel = Continue without downloading a safety backup');
+  if(makeSafetyBackup){
+   try{
+    downloadBackup('_SAFETY_BEFORE_RESTORE');
+    $('backupStatus').textContent='Safety backup download requested. Restoring selected backup…';
+   }catch(downloadError){
+    if(!confirm('The safety backup could not be downloaded. Do you want to continue restoring without it?')){
+     event.target.value='';
+     $('backupStatus').textContent='Restore cancelled. Your current records were not changed.';
+     return;
+    }
+   }
+  }else{
+   $('backupStatus').textContent='Continuing without a safety backup…';
+  }
+
+  const old={
+   operations:localStorage.getItem(KEY),
+   load:localStorage.getItem(LOAD_KEY),
+   consumption:localStorage.getItem(CONSUMPTION_KEY),
+   archive:localStorage.getItem(ARCHIVE_KEY),
+   outages:localStorage.getItem(FAULT_KEY),
+   equipment:localStorage.getItem(EQUIPMENT_KEY),
+   alertSettings:localStorage.getItem(ALERT_SETTINGS_KEY),
+   substationName:localStorage.getItem(SUBSTATION_SETTINGS_KEY),
+   feederNames:localStorage.getItem(FEEDER_NAMES_KEY),
+   feederAllowances:localStorage.getItem(FEEDER_ALLOWANCES_KEY),
+   topology:localStorage.getItem(TOPOLOGY_KEY)
+  };
+  try{
+   // Suspend periodic autosave while restored data is committed and the page reloads.
+   backupRestoreReloadPending=true;
+   // Write all restored datasets, including the archive, before reloading.
+   localStorage.setItem(KEY,JSON.stringify(op));
+   localStorage.setItem(LOAD_KEY,JSON.stringify(ld));
+   localStorage.setItem(CONSUMPTION_KEY,JSON.stringify(cd));
+   localStorage.setItem(ARCHIVE_KEY,JSON.stringify(archive));
+   localStorage.setItem(FAULT_KEY,JSON.stringify(outages));
+   localStorage.setItem(EQUIPMENT_KEY,JSON.stringify(equipment));
+   localStorage.setItem(ALERT_SETTINGS_KEY,JSON.stringify(restoredAlertSettings));
+   if(parsed.records.substationName!==undefined)localStorage.setItem(SUBSTATION_SETTINGS_KEY,JSON.stringify({name:parsed.records.substationName}));else localStorage.removeItem(SUBSTATION_SETTINGS_KEY);
+   if(parsed.records.feederNames!==undefined)localStorage.setItem(FEEDER_NAMES_KEY,JSON.stringify(parsed.records.feederNames));else localStorage.removeItem(FEEDER_NAMES_KEY);
+   if(parsed.records.feederAllowances!==undefined)localStorage.setItem(FEEDER_ALLOWANCES_KEY,JSON.stringify(parsed.records.feederAllowances));else localStorage.removeItem(FEEDER_ALLOWANCES_KEY);
+   if(parsed.records.topology!==undefined)localStorage.setItem(TOPOLOGY_KEY,JSON.stringify(parsed.records.topology));else localStorage.removeItem(TOPOLOGY_KEY);
+   // Verify that the browser actually persisted the selected backup values.
+   const savedOps=JSON.parse(localStorage.getItem(KEY)||'null');
+   const savedLoad=JSON.parse(localStorage.getItem(LOAD_KEY)||'null');
+   const savedConsumption=JSON.parse(localStorage.getItem(CONSUMPTION_KEY)||'null');
+   const savedArchive=JSON.parse(localStorage.getItem(ARCHIVE_KEY)||'null');
+   const savedOutages=JSON.parse(localStorage.getItem(FAULT_KEY)||'null');
+   const savedEquipment=JSON.parse(localStorage.getItem(EQUIPMENT_KEY)||'null');
+   const savedAlertSettings=JSON.parse(localStorage.getItem(ALERT_SETTINGS_KEY)||'null');
+   const savedSubstationName=JSON.parse(localStorage.getItem(SUBSTATION_SETTINGS_KEY)||'null');
+   const savedFeederNames=JSON.parse(localStorage.getItem(FEEDER_NAMES_KEY)||'null');
+   const savedFeederAllowances=JSON.parse(localStorage.getItem(FEEDER_ALLOWANCES_KEY)||'null');
+   const savedTopology=JSON.parse(localStorage.getItem(TOPOLOGY_KEY)||'null');
+   if(!savedOps||savedOps.events.length!==op.events.length||
+      JSON.stringify(savedOps)!==JSON.stringify(op)||
+      JSON.stringify(savedLoad)!==JSON.stringify(ld)||
+      JSON.stringify(savedConsumption)!==JSON.stringify(cd)||
+      JSON.stringify(savedArchive)!==JSON.stringify(archive)||
+      JSON.stringify(savedOutages)!==JSON.stringify(outages)||
+      JSON.stringify(savedEquipment)!==JSON.stringify(equipment)||
+      JSON.stringify(savedAlertSettings)!==JSON.stringify(restoredAlertSettings)||
+      (parsed.records.substationName!==undefined&&savedSubstationName?.name!==parsed.records.substationName)||
+      (parsed.records.feederNames!==undefined&&JSON.stringify(savedFeederNames)!==JSON.stringify(parsed.records.feederNames))||
+      (parsed.records.feederAllowances!==undefined&&JSON.stringify(savedFeederAllowances)!==JSON.stringify(parsed.records.feederAllowances))||
+      (parsed.records.topology!==undefined&&JSON.stringify(savedTopology)!==JSON.stringify(parsed.records.topology))){
+    throw new Error('The restored data did not pass the save verification check.');
+   }
+  }catch(writeError){
+   backupRestoreReloadPending=false;
+   for(const [key,value] of [[KEY,old.operations],[LOAD_KEY,old.load],[CONSUMPTION_KEY,old.consumption],[ARCHIVE_KEY,old.archive],[FAULT_KEY,old.outages],[EQUIPMENT_KEY,old.equipment],[ALERT_SETTINGS_KEY,old.alertSettings],[SUBSTATION_SETTINGS_KEY,old.substationName],[FEEDER_NAMES_KEY,old.feederNames],[FEEDER_ALLOWANCES_KEY,old.feederAllowances],[TOPOLOGY_KEY,old.topology]]){
+    if(value===null)localStorage.removeItem(key);else localStorage.setItem(key,value);
+   }
+   throw new Error('The browser could not save the restored data. Existing records were rolled back. '+writeError.message);
+  }
+  $('backupStatus').textContent='Restore completed successfully. The selected backup has replaced the current records. Reloading the logbook…';
+  setTimeout(()=>location.reload(),900);
+ }catch(error){
+  $('backupStatus').textContent='Restore failed: '+error.message+' Your existing records have not been changed.';
+  event.target.value='';
+ }
+});
+
+function monthlyReportDuration(value){
+ if(value===null||value===undefined||String(value).trim()==='')return 'Nil';
+ const parts=String(value).trim().split(':');
+ if(parts.length!==3)return 'Nil';
+ return `${parts[0]}hrs ${parts[1]}mins`;
+}
+function monthlyReportEnergy(value){return value===null||value===undefined||String(value).trim()===''?'Nil':String(value);}
+function monthlyReportValues(col){
+ const durations=consumptionData.durations.map(row=>durationSeconds(row?.[col])).filter(v=>v!==null);
+ const total=durations.reduce((a,b)=>a+b,0);
+ const average=durations.length?durationText(total/durations.length):'';
+ const previous=consumptionData.previous[col];
+ const present=consumptionData.present[col];
+ const consumption=previous===''||previous===null||previous===undefined||present===''||present===null||present===undefined?'':String(Number(present)-Number(previous));
+ return {total:durationText(total),average,previous,present,consumption};
+}
+function renderMonthlyReport(){
+ const now=new Date(),previousMonthDate=new Date(now.getFullYear(),now.getMonth()-1,1),month=previousMonthDate.toLocaleString('en-GB',{month:'long'}).toUpperCase(),year=previousMonthDate.getFullYear();
+ const parts=[`*${(substationShortName()+' Monthly Availability Report').toUpperCase()} FOR ${month} ${year}*`];
+ activeConsumptionCols().forEach(c=>{const v=monthlyReportValues(c.col);parts.push(`\n*${feederName(c.id).toUpperCase()}*\nTotal Availability = ${monthlyReportDuration(v.total)}\nAvg. Availability = ${monthlyReportDuration(v.average)}\n*Energy*\nPrevious = ${monthlyReportEnergy(v.previous)}MWh\nPresent = ${monthlyReportEnergy(v.present)}MWh\n*Consumption* = ${monthlyReportEnergy(v.consumption)}MWh`);});
+ $('monthlyReportContent').textContent=parts.join('\n');$('monthlyReportBox').classList.add('show');
+}
+
+async function copyMonthlyReport(){
+ const text=$('monthlyReportContent').textContent;
+ const button=$('copyMonthlyReportBtn');let copied=false;
+ if(navigator.clipboard&&typeof navigator.clipboard.writeText==='function'){
+  try{await navigator.clipboard.writeText(text);copied=true;}catch(e){}
+ }
+ if(!copied){
+  const area=document.createElement('textarea');area.value=text;area.setAttribute('readonly','');
+  area.style.position='fixed';area.style.top='0';area.style.left='0';area.style.width='2px';area.style.height='2px';area.style.padding='0';area.style.border='0';area.style.opacity='0.01';area.style.fontSize='16px';
+  document.body.appendChild(area);
+  try{area.focus({preventScroll:true});area.select();area.setSelectionRange(0,area.value.length);copied=document.execCommand('copy');}catch(e){copied=false;}
+  area.remove();
+ }
+ if(copied){const old=button.textContent;button.textContent='Copied';setTimeout(()=>button.textContent=old,1600);}
+ else{const report=$('monthlyReportContent'),selection=window.getSelection(),range=document.createRange();range.selectNodeContents(report);selection.removeAllRanges();selection.addRange(range);alert('Automatic copying is unavailable in this browser. The report text is selected. Tap Copy from the text selection menu.');}
+}
+$('monthlyReportBtn').onclick=renderMonthlyReport;
+$('copyMonthlyReportBtn').onclick=copyMonthlyReport;
+$('clearConsumptionBtn').onclick=()=>{if(!confirm('Clear all consumption sheet entries? This cannot be undone.'))return;consumptionData={durations:Array.from({length:31},()=>['','','','','']),previous:['','','','',''],present:['','','','','']};saveConsumption();renderConsumption();$('monthlyReportBox').classList.remove('show');};
+
+const ARCHIVE_KEY='bedc_substation_report_archive_v1';
+function archiveSignature(item){
+ return [String(item.type||''),String(item.title||'').trim().toLowerCase(),String(item.body||'').trim()].join('\\u241f');
+}
+function readReportArchive(){
+ try{
+  const raw=JSON.parse(localStorage.getItem(ARCHIVE_KEY)||'[]');
+  if(!Array.isArray(raw))return [];
+  // Migrate old archive data by keeping the newest copy of each identical report.
+  const seen=new Set(),clean=[];
+  for(const item of raw){
+   if(!item||typeof item!=='object'||!['daily','monthly'].includes(item.type)||typeof item.body!=='string')continue;
+   const sig=archiveSignature(item);
+   if(seen.has(sig))continue;
+   seen.add(sig);clean.push(item);
+  }
+  if(clean.length!==raw.length)localStorage.setItem(ARCHIVE_KEY,JSON.stringify(clean));
+  return clean;
+ }catch(e){return [];}
+}
+function writeReportArchive(items){localStorage.setItem(ARCHIVE_KEY,JSON.stringify(items));}
+function saveReportToArchive(type,title,body){
+ const content=String(body||'').trim();if(!content)throw new Error('Generate the report before saving it.');
+ const candidate={type,title:String(title||'').trim(),body:content};
+ const items=readReportArchive();
+ const signature=archiveSignature(candidate);
+ const existing=items.find(item=>archiveSignature(item)===signature);
+ if(existing)return {record:existing,duplicate:true};
+ const record={id:'report_'+Date.now().toString(36)+'_'+Math.random().toString(36).slice(2,8),...candidate,createdAt:new Date().toISOString()};
+ items.unshift(record);writeReportArchive(items);return {record,duplicate:false};
+}
+function archiveEscape(value){
+ return String(value??'').replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
+}
+function archiveDate(iso){
+ const d=new Date(iso);return Number.isNaN(d.getTime())?'Unknown date':d.toLocaleString('en-GB',{day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit',hour12:false});
+}
+function renderArchive(){
+ const host=$('archiveList');if(!host)return;
+ const type=$('archiveTypeFilter').value,query=$('archiveSearch').value.trim().toLowerCase(),all=readReportArchive();
+ const rows=all.filter(x=>(type==='all'||x.type===type)&&(!query||`${x.title} ${x.createdAt} ${x.body}`.toLowerCase().includes(query)));
+ $('archiveCount').textContent=`${rows.length} shown · ${all.length} saved report${all.length===1?'':'s'}`;
+ if(!rows.length){host.innerHTML='<div class="archive-empty">No saved reports found.<br>Generate a daily or monthly report and select Save to Archive.</div>';return;}
+ host.innerHTML=rows.map(x=>`<article class="archive-item">
+  <div><h3><span class="archive-type">${x.type==='daily'?'Daily':'Monthly'}</span>${archiveEscape(x.title)}</h3>
+  <div class="archive-meta">Saved ${archiveDate(x.createdAt)} · ${String(x.body).length.toLocaleString()} characters</div>
+  <div class="archive-detail" id="archive_detail_${archiveEscape(x.id)}" style="display:none"><pre class="archive-preview">${archiveEscape(x.body)}</pre></div></div>
+  <div class="archive-actions"><button type="button" class="btn-light" data-archive="view" data-id="${archiveEscape(x.id)}">View</button><button type="button" class="btn-light" data-archive="copy" data-id="${archiveEscape(x.id)}">Copy</button><button type="button" class="btn-light" data-archive="download" data-id="${archiveEscape(x.id)}">Download TXT</button><button type="button" class="btn-danger" data-archive="delete" data-id="${archiveEscape(x.id)}">Delete</button></div>
+ </article>`).join('');
+ // Bind View directly to each button for reliable single-tap handling on mobile.
+ host.querySelectorAll('button[data-archive="view"]').forEach(button=>{
+  button.addEventListener('click',event=>{
+   event.preventDefault();event.stopPropagation();
+   const id=button.dataset.id;
+   const detail=document.getElementById('archive_detail_'+id);
+   if(!detail)return;
+   const opening=detail.style.display==='none';
+   detail.style.display=opening?'block':'none';
+   button.textContent=opening?'Hide':'View';
+  },{passive:false});
+ });
+}
+function showArchiveCopyFallback(text){
+ const existing=document.getElementById('archiveCopyModal');if(existing)existing.remove();
+ const modal=document.createElement('div');modal.className='archive-copy-modal';modal.id='archiveCopyModal';
+ const dialog=document.createElement('div');dialog.className='archive-copy-dialog';
+ const heading=document.createElement('h3');heading.textContent='Copy archived report';
+ const note=document.createElement('p');note.textContent='Automatic copying is blocked by this browser. Press and hold inside the report, choose Select all, then Copy.';
+ const area=document.createElement('textarea');area.id='archiveCopyText';area.readOnly=true;area.value=String(text||'');area.setAttribute('aria-label','Full archived report text');
+ const actions=document.createElement('div');actions.className='archive-copy-actions';
+ const select=document.createElement('button');select.type='button';select.className='btn-primary';select.textContent='Select all';
+ const close=document.createElement('button');close.type='button';close.className='btn-light';close.textContent='Close';
+ select.addEventListener('click',()=>{area.focus();area.select();area.setSelectionRange(0,area.value.length);});
+ close.addEventListener('click',()=>modal.remove());
+ actions.append(select,close);dialog.append(heading,note,area,actions);modal.append(dialog);document.body.append(modal);
+ area.focus();area.select();area.setSelectionRange(0,area.value.length);
+}
+function archiveCopy(text){
+ // Android Chrome may report execCommand('copy') as successful even when the
+ // clipboard has not actually changed. Open the manual-copy window directly.
+ // This avoids false success alerts and repeated OK prompts.
+ showArchiveCopyFallback(String(text||''));
+ return false;
+}
+function archiveDownload(item,button){
+ // Use the current download time plus a random suffix. The report's saved time
+ // is constant, so using it alone causes Android Chrome to keep prompting
+ // about downloading the same filename again.
+ const now=new Date();
+ const stamp=now.getFullYear().toString()+
+  String(now.getMonth()+1).padStart(2,'0')+
+  String(now.getDate()).padStart(2,'0')+'_ ' .trim()+
+  String(now.getHours()).padStart(2,'0')+
+  String(now.getMinutes()).padStart(2,'0')+
+  String(now.getSeconds()).padStart(2,'0')+
+  String(now.getMilliseconds()).padStart(3,'0');
+ const suffix=Math.random().toString(36).slice(2,7);
+ const safeType=item.type==='daily'?'Daily':'Monthly';
+ const blob=new Blob([String(item.body||'')],{type:'text/plain;charset=utf-8'});
+ const url=URL.createObjectURL(blob);
+ const a=document.createElement('a');
+ a.href=url;
+ a.download=`BEDC_${safeType}_Report_${stamp}_${suffix}.txt`;
+ a.style.display='none';
+ document.body.appendChild(a);
+ if(button)button.disabled=true;
+ a.click();
+ setTimeout(()=>{a.remove();URL.revokeObjectURL(url);if(button)button.disabled=false;},1500);
+}
+$('saveDailyArchiveBtn').addEventListener('click',(event)=>{
+ event.preventDefault();event.stopPropagation();
+ const btn=$('saveDailyArchiveBtn');
+ const now=Date.now();
+ if(event.isTrusted===false||btn.dataset.saving==='1'||now-Number(btn.dataset.lastSaveClick||0)<1200)return;
+ btn.dataset.lastSaveClick=String(now);
+ btn.dataset.saving='1';btn.disabled=true;
+ try{
+  const date=previousDayDate();
+  const result=saveReportToArchive('daily',`Daily Availability Report · ${date}`,$('dailyReportContent').textContent);
+  $('dailyArchiveStatus').textContent=result.duplicate?'This exact report is already in the archive. No duplicate was added.':'Report saved to Historical Archive.';
+  renderArchive();
+ }catch(e){alert(e.message);}
+ finally{btn.dataset.saving='0';setTimeout(()=>{btn.disabled=false;},1200);}
+});
+$('saveMonthlyArchiveBtn').addEventListener('click',(event)=>{
+ event.preventDefault();event.stopPropagation();
+ const btn=$('saveMonthlyArchiveBtn');
+ const now=Date.now();
+ if(event.isTrusted===false||btn.dataset.saving==='1'||now-Number(btn.dataset.lastSaveClick||0)<1200)return;
+ btn.dataset.lastSaveClick=String(now);
+ btn.dataset.saving='1';btn.disabled=true;
+ try{
+  const text=$('monthlyReportContent').textContent;
+  const match=text.match(/FOR\s+([A-Z]+\s+\d{4})/);
+  const result=saveReportToArchive('monthly',`Monthly Availability Report · ${match?match[1]:'Generated report'}`,text);
+  $('monthlyArchiveStatus').textContent=result.duplicate?'This exact report is already in the archive. No duplicate was added.':'Report saved to Historical Archive.';
+  renderArchive();
+ }catch(e){alert(e.message);}
+ finally{btn.dataset.saving='0';setTimeout(()=>{btn.disabled=false;},1200);}
+});
+$('archiveList').addEventListener('click',async ev=>{
+ const btn=ev.target.closest('button[data-archive]');if(!btn)return;
+ const item=readReportArchive().find(x=>x.id===btn.dataset.id);if(!item)return;
+ if(btn.dataset.archive==='view')return;
+ if(btn.dataset.archive==='copy'){
+  archiveCopy(item.body);
+ }
+ if(btn.dataset.archive==='download'){
+  if(btn.dataset.downloading==='1')return;
+  btn.dataset.downloading='1';
+  archiveDownload(item,btn);
+  setTimeout(()=>{btn.dataset.downloading='0';},1500);
+ }
+ if(btn.dataset.archive==='delete'){if(!confirm('Delete this archived report? This cannot be undone.'))return;writeReportArchive(readReportArchive().filter(x=>x.id!==item.id));renderArchive();}
+});
+$('archiveTypeFilter').addEventListener('change',renderArchive);
+$('archiveSearch').addEventListener('input',renderArchive);
+$('refreshArchiveBtn').onclick=renderArchive;
+
+
+const FAULT_KEY='bedc_substation_outage_fault_register_v1';
+let faultRecords=[],editingFaultId=null;
+function loadFaultRecords(){
+ try{const v=JSON.parse(localStorage.getItem(FAULT_KEY)||'[]');return Array.isArray(v)?v:[];}catch(e){return [];}
+}
+function saveFaultRecords(){
+ localStorage.setItem(FAULT_KEY,JSON.stringify(faultRecords));
+ $('faultFormStatus').textContent='Outage register saved on this device.';
+}
+function faultEscape(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+function faultFeederName(id){return feederName(id);}
+function faultDateInputValue(ms){
+ const d=new Date(ms-Date.now()*0+new Date().getTimezoneOffset()*60000);
+ return d.toISOString().slice(0,16);
+}
+function faultDateLabel(ms){
+ if(!Number.isFinite(Number(ms)))return 'Ongoing';
+ return new Date(Number(ms)).toLocaleString('en-GB',{day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit',hour12:false});
+}
+function faultDuration(start,end){
+ const ms=Math.max(0,(Number(end)||Date.now())-Number(start||0));
+ const mins=Math.floor(ms/60000),days=Math.floor(mins/1440),hours=Math.floor((mins%1440)/60),minutes=mins%60;
+ return days?`${days}d ${hours}h ${minutes}m`:`${hours}h ${minutes}m`;
+}
+function resetFaultForm(){
+ editingFaultId=null;$('faultForm').reset();$('faultFormHeading').textContent='Record an outage or fault';
+ $('saveFaultBtn').textContent='Save outage record';$('cancelFaultEditBtn').hidden=true;
+ $('faultFormStatus').textContent='';
+}
+function renderFaultRegister(){
+ const total=faultRecords.length,open=faultRecords.filter(x=>x.restoredAt===null).length,restored=total-open;
+ $('faultSummary').innerHTML=[
+  ['Total records',total],['Ongoing outages',open],['Restored events',restored]
+ ].map(([a,b])=>`<div class="fault-kpi"><span>${a}</span><strong>${b}</strong></div>`).join('');
+ const status=$('faultStatusFilter').value,feeder=$('faultFeederFilter').value,q=$('faultSearch').value.trim().toLowerCase();
+ const rows=faultRecords.filter(x=>(status==='all'||(status==='open'?x.restoredAt===null:x.restoredAt!==null))&&(feeder==='all'||x.feeder===feeder)&&(!q||[x.cause,x.description,x.action,x.reference,x.operator].join(' ').toLowerCase().includes(q))).sort((a,b)=>b.startAt-a.startAt);
+ if(!rows.length){$('faultTableHost').innerHTML='<div class="fault-empty">No outage or fault records match this view.</div>';return;}
+ $('faultTableHost').innerHTML=`<div class="fault-table-wrap"><table class="fault-table"><thead><tr><th>Feeder</th><th>Outage start</th><th>Restoration</th><th>Duration</th><th>Cause</th><th>Description / action</th><th>Status</th><th>Actions</th></tr></thead><tbody>${rows.map(x=>`<tr>
+ <td>${faultEscape(faultFeederName(x.feeder))}</td><td>${faultDateLabel(x.startAt)}</td><td>${x.restoredAt===null?'Not restored':faultDateLabel(x.restoredAt)}</td>
+ <td class="fault-duration">${faultDuration(x.startAt,x.restoredAt)}</td><td>${faultEscape(x.cause)}</td>
+ <td>${faultEscape(x.description||'Nil')}${x.action?'<br><strong>Action:</strong> '+faultEscape(x.action):''}${x.reference?'<br><strong>Ref:</strong> '+faultEscape(x.reference):''}${x.operator?'<br><strong>By:</strong> '+faultEscape(x.operator):''}</td>
+ <td><span class="fault-status ${x.restoredAt!==null?'restored':''}">${x.restoredAt===null?'ONGOING':'RESTORED'}</span></td>
+ <td><div class="fault-row-actions"><button class="btn-light" type="button" data-fault-action="edit" data-id="${faultEscape(x.id)}">Edit</button><button class="btn-danger" type="button" data-fault-action="delete" data-id="${faultEscape(x.id)}">Delete</button></div></td>
+ </tr>`).join('')}</tbody></table></div>`;
+}
+$('faultForm').addEventListener('submit',event=>{
+ event.preventDefault();
+ const feeder=$('faultFeeder').value,cause=$('faultCause').value,startMs=new Date($('faultStart').value).getTime();
+ const restoreText=$('faultRestore').value,restoreMs=restoreText?new Date(restoreText).getTime():null;
+ if(!cause||!Number.isFinite(startMs)){alert('Select a cause and enter a valid outage start time.');return;}
+ if(restoreText&&(!Number.isFinite(restoreMs)||restoreMs<startMs)){alert('Restoration time must be valid and cannot be earlier than the outage start.');return;}
+ const record={id:editingFaultId||('fault_'+uid()),feeder,cause,startAt:startMs,restoredAt:restoreMs,description:$('faultDescription').value.trim(),action:$('faultAction').value.trim(),reference:$('faultReference').value.trim(),operator:$('faultOperator').value.trim(),createdAt:editingFaultId?(faultRecords.find(x=>x.id===editingFaultId)?.createdAt||new Date().toISOString()):new Date().toISOString(),updatedAt:new Date().toISOString()};
+ if(editingFaultId){faultRecords=faultRecords.map(x=>x.id===editingFaultId?record:x);}else faultRecords.unshift(record);
+ try{saveFaultRecords();resetFaultForm();renderFaultRegister();}catch(e){$('faultFormStatus').textContent='Could not save record: '+e.message;}
+});
+$('cancelFaultEditBtn').onclick=resetFaultForm;
+$('faultTableHost').addEventListener('click',event=>{
+ const btn=event.target.closest('button[data-fault-action]');if(!btn)return;
+ const item=faultRecords.find(x=>x.id===btn.dataset.id);if(!item)return;
+ if(btn.dataset.faultAction==='delete'){
+  if(!confirm('Delete this outage/fault record? This cannot be undone.'))return;
+  faultRecords=faultRecords.filter(x=>x.id!==item.id);saveFaultRecords();renderFaultRegister();
+ }
+ if(btn.dataset.faultAction==='edit'){
+  editingFaultId=item.id;$('faultFormHeading').textContent='Edit outage or fault record';
+  $('saveFaultBtn').textContent='Save changes';$('cancelFaultEditBtn').hidden=false;
+  $('faultFeeder').value=item.feeder;$('faultCause').value=item.cause;
+  $('faultStart').value=faultDateInputValue(item.startAt);
+  $('faultRestore').value=item.restoredAt===null?'':faultDateInputValue(item.restoredAt);
+  $('faultDescription').value=item.description||'';$('faultAction').value=item.action||'';
+  $('faultReference').value=item.reference||'';$('faultOperator').value=item.operator||'';
+  $('faultFormHeading').scrollIntoView({behavior:'smooth',block:'start'});
+ }
+});
+['faultStatusFilter','faultFeederFilter'].forEach(id=>$(id).addEventListener('change',renderFaultRegister));
+$('faultSearch').addEventListener('input',renderFaultRegister);
+$('exportFaultCsvBtn').onclick=()=>{
+ const header=['Feeder','Outage Start','Restoration','Duration','Cause','Description','Action Taken','Reference','Recorded By','Status'];
+ const rows=faultRecords.slice().sort((a,b)=>a.startAt-b.startAt).map(x=>[faultFeederName(x.feeder),new Date(x.startAt).toISOString(),x.restoredAt===null?'':new Date(x.restoredAt).toISOString(),faultDuration(x.startAt,x.restoredAt),x.cause,x.description,x.action,x.reference,x.operator,x.restoredAt===null?'ONGOING':'RESTORED']);
+ const quote=v=>'"'+String(v??'').replace(/"/g,'""')+'"';
+ const csv=[header,...rows].map(row=>row.map(quote).join(',')).join('\r\n');
+ const blob=new Blob(['\ufeff'+csv],{type:'text/csv;charset=utf-8'}),url=URL.createObjectURL(blob),a=document.createElement('a');
+ a.href=url;a.download=`BEDC_Outage_Fault_Register_${new Date().toISOString().slice(0,10)}.csv`;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),5000);
+};
+faultRecords=loadFaultRecords();
+
+
+
+const EQUIPMENT_KEY='bedc_substation_equipment_inspections_v1';
+let equipmentRecords=[],editingEquipmentId=null;
+function loadEquipmentRecords(){
+ try{const v=JSON.parse(localStorage.getItem(EQUIPMENT_KEY)||'[]');return Array.isArray(v)?v:[];}catch(e){return [];}
+}
+function saveEquipmentRecords(){
+ localStorage.setItem(EQUIPMENT_KEY,JSON.stringify(equipmentRecords));
+ $('equipmentFormStatus').textContent='Inspection record saved on this device.';
+}
+function equipmentEscape(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+function equipmentDateInput(ms){
+ const d=new Date(Number(ms));const local=new Date(d.getTime()-d.getTimezoneOffset()*60000);return local.toISOString().slice(0,16);
+}
+function equipmentDateLabel(value){
+ if(!value)return 'Nil';const d=new Date(value);return Number.isNaN(d.getTime())?'Nil':d.toLocaleString('en-GB',{day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit',hour12:false});
+}
+function resetEquipmentForm(){
+ editingEquipmentId=null;$('equipmentForm').reset();$('equipmentFormHeading').textContent='Record an equipment inspection';
+ $('saveEquipmentBtn').textContent='Save inspection';$('cancelEquipmentEditBtn').hidden=true;$('equipmentFormStatus').textContent='';
+}
+function renderEquipmentRegister(){
+ const total=equipmentRecords.length,defects=equipmentRecords.filter(x=>x.condition==='defect').length,attention=equipmentRecords.filter(x=>x.condition==='attention').length,open=equipmentRecords.filter(x=>x.status==='open').length;
+ $('equipmentSummary').innerHTML=[['Inspections',total],['Defects identified',defects],['Needs attention',attention],['Actions pending',open]].map(([a,b])=>`<div class="equipment-kpi"><span>${a}</span><strong>${b}</strong></div>`).join('');
+ const category=$('equipmentCategoryFilter').value,condition=$('equipmentConditionFilter').value,status=$('equipmentStatusFilter').value,q=$('equipmentSearch').value.trim().toLowerCase();
+ const rows=equipmentRecords.filter(x=>(category==='all'||x.category===category)&&(condition==='all'||x.condition===condition)&&(status==='all'||x.status===status)&&(!q||[x.name,x.category,x.readings,x.observations,x.action,x.inspector,x.reference].join(' ').toLowerCase().includes(q))).sort((a,b)=>b.inspectedAt-a.inspectedAt);
+ if(!rows.length){$('equipmentTableHost').innerHTML='<div class="equipment-empty">No inspection records match this view. Add an inspection using the form above.</div>';return;}
+ const conditionLabel={normal:'NORMAL',attention:'ATTENTION',defect:'DEFECT'};
+ const statusLabel={open:'ACTION PENDING',closed:'COMPLETED',monitor:'MONITOR'};
+ $('equipmentTableHost').innerHTML=`<div class="equipment-table-wrap"><table class="equipment-table"><thead><tr><th>Inspection date</th><th>Equipment</th><th>Condition</th><th>Readings</th><th>Findings / observations</th><th>Action / recommendation</th><th>Follow-up</th><th>Next due</th><th>Inspector</th><th>Actions</th></tr></thead><tbody>${rows.map(x=>`<tr>
+ <td>${equipmentDateLabel(x.inspectedAt)}</td><td><strong>${equipmentEscape(x.name)}</strong><br>${equipmentEscape(x.category)}${x.reference?'<br>Ref: '+equipmentEscape(x.reference):''}</td>
+ <td><span class="equipment-condition ${x.condition}">${conditionLabel[x.condition]}</span></td>
+ <td>${equipmentEscape(x.readings||'Nil')}</td><td>${equipmentEscape(x.observations)}</td><td>${equipmentEscape(x.action||'Nil')}</td>
+ <td class="${x.status==='closed'?'equipment-closed':x.status==='open'?'equipment-open':''}">${statusLabel[x.status]||x.status}</td><td>${x.nextDue?equipmentDateLabel(x.nextDue+'T00:00:00'):'Nil'}</td><td>${equipmentEscape(x.inspector||'Nil')}</td>
+ <td><div class="equipment-row-actions"><button class="btn-light" type="button" data-equipment-action="edit" data-id="${equipmentEscape(x.id)}">Edit</button><button class="btn-danger" type="button" data-equipment-action="delete" data-id="${equipmentEscape(x.id)}">Delete</button></div></td>
+ </tr>`).join('')}</tbody></table></div>`;
+}
+$('equipmentForm').addEventListener('submit',event=>{
+ event.preventDefault();
+ const inspectedAt=new Date($('equipmentDate').value).getTime();
+ if(!Number.isFinite(inspectedAt)){alert('Enter a valid inspection date and time.');return;}
+ const nextDue=$('equipmentNextDate').value||'';
+ const record={id:editingEquipmentId||('equipment_'+uid()),category:$('equipmentCategory').value,name:$('equipmentName').value.trim(),inspectedAt,condition:$('equipmentCondition').value,status:$('equipmentStatus').value,nextDue,readings:$('equipmentReadings').value.trim(),observations:$('equipmentObservations').value.trim(),action:$('equipmentAction').value.trim(),inspector:$('equipmentInspector').value.trim(),reference:$('equipmentReference').value.trim(),createdAt:editingEquipmentId?(equipmentRecords.find(x=>x.id===editingEquipmentId)?.createdAt||new Date().toISOString()):new Date().toISOString(),updatedAt:new Date().toISOString()};
+ if(!record.category||!record.name||!record.observations){alert('Complete the equipment category, name and inspection findings.');return;}
+ if(editingEquipmentId)equipmentRecords=equipmentRecords.map(x=>x.id===editingEquipmentId?record:x);else equipmentRecords.unshift(record);
+ try{saveEquipmentRecords();resetEquipmentForm();renderEquipmentRegister();}catch(e){$('equipmentFormStatus').textContent='Could not save inspection: '+e.message;}
+});
+$('cancelEquipmentEditBtn').onclick=resetEquipmentForm;
+$('equipmentTableHost').addEventListener('click',event=>{
+ const btn=event.target.closest('button[data-equipment-action]');if(!btn)return;
+ const item=equipmentRecords.find(x=>x.id===btn.dataset.id);if(!item)return;
+ if(btn.dataset.equipmentAction==='delete'){
+  if(!confirm('Delete this inspection record? This cannot be undone.'))return;
+  equipmentRecords=equipmentRecords.filter(x=>x.id!==item.id);saveEquipmentRecords();renderEquipmentRegister();
+ }
+ if(btn.dataset.equipmentAction==='edit'){
+  editingEquipmentId=item.id;$('equipmentFormHeading').textContent='Edit equipment inspection';
+  $('saveEquipmentBtn').textContent='Save changes';$('cancelEquipmentEditBtn').hidden=false;
+  $('equipmentCategory').value=item.category;$('equipmentName').value=item.name;$('equipmentDate').value=equipmentDateInput(item.inspectedAt);
+  $('equipmentCondition').value=item.condition;$('equipmentStatus').value=item.status;$('equipmentNextDate').value=item.nextDue||'';
+  $('equipmentReadings').value=item.readings||'';$('equipmentObservations').value=item.observations||'';
+  $('equipmentAction').value=item.action||'';$('equipmentInspector').value=item.inspector||'';$('equipmentReference').value=item.reference||'';
+  $('equipmentFormHeading').scrollIntoView({behavior:'smooth',block:'start'});
+ }
+});
+['equipmentCategoryFilter','equipmentConditionFilter','equipmentStatusFilter'].forEach(id=>$(id).addEventListener('change',renderEquipmentRegister));
+$('equipmentSearch').addEventListener('input',renderEquipmentRegister);
+$('exportEquipmentCsvBtn').onclick=()=>{
+ const header=['Inspection Date','Equipment Category','Equipment Name','Condition','Follow-up Status','Next Inspection Due','Readings','Findings','Action / Recommendation','Inspector','Reference'];
+ const rows=equipmentRecords.slice().sort((a,b)=>a.inspectedAt-b.inspectedAt).map(x=>[new Date(x.inspectedAt).toISOString(),x.category,x.name,x.condition,x.status,x.nextDue,x.readings,x.observations,x.action,x.inspector,x.reference]);
+ const quote=v=>'"'+String(v??'').replace(/"/g,'""')+'"';
+ const csv=[header,...rows].map(row=>row.map(quote).join(',')).join('\r\n');
+ const blob=new Blob(['\ufeff'+csv],{type:'text/csv;charset=utf-8'}),url=URL.createObjectURL(blob),a=document.createElement('a');
+ a.href=url;a.download=`BEDC_Equipment_Inspection_Register_${new Date().toISOString().slice(0,10)}.csv`;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),5000);
+};
+equipmentRecords=loadEquipmentRecords();
+
+
+
+const ALERT_SETTINGS_KEY='bedc_substation_alert_settings_v1';
+let alertSettings={lowAllowanceMinutes:60,phaseImbalancePercent:20};
+function loadAlertSettings(){
+ try{const v=JSON.parse(localStorage.getItem(ALERT_SETTINGS_KEY)||'null');if(v&&typeof v==='object')return {...alertSettings,...v};}catch(e){}return alertSettings;
+}
+function saveAlertSettings(){
+ alertSettings={lowAllowanceMinutes:Number($('lowAllowanceThreshold').value)||60,phaseImbalancePercent:Number($('phaseImbalanceThreshold').value)||20};
+ localStorage.setItem(ALERT_SETTINGS_KEY,JSON.stringify(alertSettings));
+ $('alertSettingsStatus').textContent='Alert settings saved on this device.';
+ renderOperationalAlerts();
+}
+function alertEscape(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+function latestHourlyReading(keys){
+ for(let h=23;h>=0;h--){
+  const row=loadData[String(h).padStart(2,'0')]||{};
+  const raw=keys.map(k=>row[k]);
+  // A phase imbalance is meaningful only when all three phase readings
+  // exist in the same hourly record and contain valid numeric values.
+  if(raw.some(v=>v===undefined||v===null||String(v).trim()===''))continue;
+  const values=raw.map(v=>Number(String(v).trim()));
+  if(values.every(Number.isFinite))return values;
+ }
+ return null;
+}
+function phaseImbalance(values){
+ if(!values||values.length!==3||values.some(v=>!Number.isFinite(v))||Math.max(...values)<=0)return null;
+ const avg=values.reduce((a,b)=>a+b,0)/3;
+ return avg>0?((Math.max(...values)-Math.min(...values))/avg)*100:null;
+}
+function collectOperationalAlerts(){
+ const alerts=[],r=currentState(),threshold=alertSettings.lowAllowanceMinutes;
+ for(const f of activeOutgoing()){
+  const left=Math.max(0,f.allowance*3600000-r.used[f.id]);
+  if(r.states[f.id]&&left<=threshold*60000)alerts.push({level:left<=15*60000?'critical':'warning',title:`${f.name}: low supply allowance`,detail:`${fmtDuration(left)} remaining. Monitor the allowance and follow the approved operating procedure.`,target:'log'});
+  if(r.states[f.id]&&left===0)alerts.push({level:'critical',title:`${f.name}: allowance exhausted`,detail:'The feeder allowance has been exhausted and the app should have locked out further switching.',target:'log'});
+ }
+ if(typeof faultRecords!=='undefined')faultRecords.filter(x=>x.restoredAt===null).forEach(x=>alerts.push({level:'warning',title:`Ongoing outage: ${faultFeederName(x.feeder)}`,detail:`${x.cause}. Open for ${faultDuration(x.startAt,null)}. ${x.description||'No additional description recorded.'}`,target:'faults'}));
+ if(typeof equipmentRecords!=='undefined'){
+  equipmentRecords.filter(x=>x.condition==='defect'&&x.status!=='closed').forEach(x=>alerts.push({level:'critical',title:`Equipment defect: ${x.name}`,detail:`${x.category}. ${x.observations} Follow-up: ${x.status==='open'?'action pending':'monitor'}.`,target:'equipment'}));
+  equipmentRecords.filter(x=>x.condition==='attention'&&x.status!=='closed').forEach(x=>alerts.push({level:'warning',title:`Equipment requires attention: ${x.name}`,detail:`${x.category}. ${x.observations}`,target:'equipment'}));
+  const today=new Date().toISOString().slice(0,10);equipmentRecords.filter(x=>x.nextDue&&x.nextDue<=today&&x.status!=='closed').forEach(x=>alerts.push({level:'warning',title:`Inspection due: ${x.name}`,detail:`Next inspection date was ${x.nextDue}.`,target:'equipment'}));
+ }
+ activeOutgoing().forEach(f=>{const m=LEGACY_LOAD_MAP[f.id],values=latestHourlyReading([m.R,m.Y,m.B]),pct=phaseImbalance(values);if(pct!==null&&pct>=alertSettings.phaseImbalancePercent)alerts.push({level:'warning',title:`${f.name}: phase current imbalance`,detail:`Latest complete hourly phase readings: R ${values[0]}A, Y ${values[1]}A, B ${values[2]}A. Calculated imbalance is ${pct.toFixed(1)}%, above the ${alertSettings.phaseImbalancePercent}% threshold.`,target:'load'});});
+ return alerts;
+}
+
+function renderOperationalAlerts(){
+ if(!$('alertsList'))return;
+ const alerts=collectOperationalAlerts();
+ const critical=alerts.filter(x=>x.level==='critical').length,warning=alerts.filter(x=>x.level==='warning').length;
+ $('alertsSummary').innerHTML=[['Total alerts',alerts.length],['Critical',critical],['Warnings',warning]].map(([a,b])=>`<div class="alert-kpi"><span>${a}</span><strong>${b}</strong></div>`).join('');
+ if(!alerts.length){$('alertsList').innerHTML='<div class="alert-empty">No active operational alerts. Continue routine monitoring and record keeping.</div>';return;}
+ $('alertsList').innerHTML=alerts.map((a,i)=>`<article class="alert-item ${a.level==='critical'?'critical':''}"><div class="alert-symbol">${a.level==='critical'?'!':'i'}</div><div class="alert-copy"><span class="alert-level">${a.level.toUpperCase()}</span><strong>${alertEscape(a.title)}</strong><p>${alertEscape(a.detail)}</p><div style="margin-top:8px"><button class="btn-light" type="button" data-alert-target="${a.target}">Open related record</button></div></div></article>`).join('');
+}
+$('alertsList').addEventListener('click',event=>{
+ const btn=event.target.closest('button[data-alert-target]');if(btn)showPage(btn.dataset.alertTarget);
+});
+$('refreshAlertsBtn').onclick=renderOperationalAlerts;
+$('saveAlertSettingsBtn').onclick=saveAlertSettings;
+$('enableBrowserAlertsBtn').onclick=async()=>{
+ if(!('Notification'in window)){$('alertSettingsStatus').textContent='This browser does not support notifications.';return;}
+ try{const permission=await Notification.requestPermission();$('alertSettingsStatus').textContent=permission==='granted'?'Browser notifications are permitted. Alerts are still reviewed in the app.':'Notification permission was not granted.';}catch(e){$('alertSettingsStatus').textContent='The browser could not request notification permission.';}
+};
+alertSettings=loadAlertSettings();
+$('lowAllowanceThreshold').value=String(alertSettings.lowAllowanceMinutes);
+$('phaseImbalanceThreshold').value=String(alertSettings.phaseImbalancePercent);
+refreshFeederModel();renderTopologySettings();syncFeederSelects();
+
+
+
+// PIN protection removed. The logbook opens directly.
+
+try{
+  refreshFeederModel();
+  renderTopologySettings();
+  syncFeederSelects();
+  applySubstationName();
+  applyFeederNames();
+  data=load();normalizeTimeline();save();render();
+  setInterval(()=>{if(backupRestoreReloadPending)return;try{normalizeTimeline();save();
+
+
+render();}catch(e){console.error(e);}},1000);
+}catch(e){
+  const msg=document.createElement('div');
+  msg.style.cssText='margin:12px 0;padding:12px;background:#fee2e2;color:#991b1b;border-radius:9px';
+  msg.textContent='The app could not start: '+e.message;
+  document.querySelector('main').prepend(msg);
+}
+})();
+</script>
+<script>if("serviceWorker" in navigator){window.addEventListener("load",()=>navigator.serviceWorker.register("./service-worker.js").catch(console.warn));}</script>
+</body>
+</html>
