@@ -110,7 +110,7 @@ button:disabled{opacity:.4;cursor:not-allowed}.btn-light{background:#fff;color:#
 .load-table td{height:27px}
 .load-table td input{display:block;box-sizing:border-box;min-width:0;width:100%;height:27px;border:0;border-radius:0;text-align:center;padding:3px 5px;background:transparent;color:#17212b;font-family:inherit;font-size:13px;outline-offset:-2px}
 .load-table td input:focus{outline:2px solid #246b8e;background:#fff}
-.load-table .energy-in{background:#f2cccc}.load-table .fed{background:#d9ead5}.load-table .orho{background:#f8e5d1}
+.load-table .energy-in{background:#f2cccc}.load-table .fed{background:#d9ead5}.load-table .orho{background:#dceaf7}.load-table .out2a{background:#e6def3}.load-table .out2b{background:#fce4d6}
 .load-table .time-head{background:#24577c}
 .load-help{font-size:12px;color:#607181;margin:0 0 12px}
 .daily-report-tools{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:14px}
@@ -1061,7 +1061,7 @@ function activeLoadColumns(){
  const cols=[];
  activeIncomers().forEach((inc,i)=>{
   cols.push({field:i===0?'incomer':'incomer2',label:inc.name+' Energy (MWh)',cls:'energy-in'});
-  outgoingTableOrder().filter(f=>f.incomer===i+1).forEach(f=>{const m=LEGACY_LOAD_MAP[f.id];['R','Y','B','energy'].forEach((phase)=>cols.push({field:m[phase],label:phase==='energy'?f.name+' Energy (MWh)':f.name+' '+phase+'(A)',cls:f.incomer===1?'fed':'orho'}));});
+  outgoingTableOrder().filter(f=>f.incomer===i+1).forEach(f=>{const m=LEGACY_LOAD_MAP[f.id],colorClass=({'11a':'orho','11b':'fed','11c':'out2a','11d':'out2b'})[f.id]||'fed';['R','Y','B','energy'].forEach((phase)=>cols.push({field:m[phase],label:phase==='energy'?f.name+' Energy (MWh)':f.name+' '+phase+'(A)',cls:colorClass}));});
  });
  return cols;
 }
